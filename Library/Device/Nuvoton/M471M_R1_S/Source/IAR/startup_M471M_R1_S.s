@@ -95,12 +95,12 @@ __vector_table_0x1c
         DCD     UART2_IRQHandler          ; 48: UART2
         DCD     UART3_IRQHandler          ; 49: UART3
         DCD     Default_Handler           ; 50: Reserved
-        DCD     Default_Handler           ; 51: Reserved
+        DCD     Default_Handler           ; 51:
         DCD     Default_Handler           ; 52: Reserved
-        DCD     Default_Handler           ; 53: Reserved
-        DCD     Default_Handler           ; 54: Reserved
-        DCD     Default_Handler           ; 55: Reserved
-        DCD     Default_Handler           ; 56: Reserved
+        DCD     USBD_IRQHandler           ; 53: USB device
+        DCD     USBH_IRQHandler           ; 54: USB Host
+        DCD     Default_Handler           ; 55:
+        DCD     Default_Handler           ; 56:
         DCD     Default_Handler           ; 57: Reserved
         DCD     SC0_IRQHandler            ; 58:
 __Vectors_End
@@ -268,6 +268,8 @@ SysTick_Handler
         PUBWEAK ADC03_IRQHandler
         PUBWEAK UART2_IRQHandler
         PUBWEAK UART3_IRQHandler
+        PUBWEAK USBD_IRQHandler
+        PUBWEAK USBH_IRQHandler
         PUBWEAK SC0_IRQHandler
 
         SECTION .text:CODE:REORDER(1)
@@ -317,6 +319,8 @@ ADC02_IRQHandler
 ADC03_IRQHandler
 UART2_IRQHandler
 UART3_IRQHandler
+USBD_IRQHandler
+USBH_IRQHandler
 SC0_IRQHandler
 Default_Handler
         B   .

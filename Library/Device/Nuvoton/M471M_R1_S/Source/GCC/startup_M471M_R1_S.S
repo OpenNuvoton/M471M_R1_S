@@ -118,8 +118,8 @@ __Vectors:
 	.long	0                     /* 50: Reserved                   */
 	.long	0                     /* 51: Reserved                   */
 	.long	0                     /* 52: Reserved                   */
-	.long	0                     /* 53: Reserved                   */
-	.long	0                     /* 54: Reserved                   */
+	.long	USBD_IRQHandler       /* 53: USBD                       */
+	.long	USBH_IRQHandler       /* 54: USBH                       */
 	.long	0                     /* 55: Reserved                   */
 	.long	0                     /* 56: Reserved                   */
 	.long	0                     /* 57: Reserved                   */
@@ -358,6 +358,8 @@ Default_Handler:
 	def_irq_handler	ADC03_IRQHandler
 	def_irq_handler	UART2_IRQHandler
 	def_irq_handler	UART3_IRQHandler
+	def_irq_handler	USBD_IRQHandler
+	def_irq_handler	USBH_IRQHandler
 	def_irq_handler	ACMP_IRQHandler
 	def_irq_handler	SC0_IRQHandler
 

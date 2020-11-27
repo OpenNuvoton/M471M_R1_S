@@ -119,8 +119,8 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     Default_Handler           ; 50: Reserved
                 DCD     Default_Handler           ; 51:
                 DCD     Default_Handler           ; 52: Reserved
-                DCD     Default_Handler           ; 53:
-                DCD     Default_Handler           ; 54:
+                DCD     USBD_IRQHandler           ; 53: USB device
+                DCD     USBH_IRQHandler           ; 54: USB Host
                 DCD     Default_Handler           ; 55:
                 DCD     Default_Handler           ; 56:
                 DCD     Default_Handler           ; 57: Reserved
@@ -266,6 +266,8 @@ Default_Handler PROC
                 EXPORT  ADC03_IRQHandler          [WEAK]
                 EXPORT  UART2_IRQHandler          [WEAK]
                 EXPORT  UART3_IRQHandler          [WEAK]
+                EXPORT  USBD_IRQHandler           [WEAK]
+                EXPORT  USBH_IRQHandler           [WEAK]
                 EXPORT  SC0_IRQHandler            [WEAK]
 
 BOD_IRQHandler

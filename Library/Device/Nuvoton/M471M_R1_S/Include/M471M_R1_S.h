@@ -124,6 +124,8 @@ typedef enum IRQn
     ADC03_IRQn                    = 47,       /*!< ADC0 Source 3 Interrupt                          */
     UART2_IRQn                    = 48,       /*!< UART2 Interrupt                                  */
     UART3_IRQn                    = 49,       /*!< UART3 Interrupt                                  */
+    USBD_IRQn                     = 53,       /*!< USB device Interrupt                             */
+    USBH_IRQn                     = 54,       /*!< USB host Interrupt                               */
     SC0_IRQn                      = 58,       /*!< Smart Card 0 Interrupt                           */
 } IRQn_Type;
 
@@ -989,7 +991,7 @@ typedef struct
      * |        |          |Note2: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[6]     |PDWKIF    |Power-Down Mode Wake-Up Interrupt Status
      * |        |          |Set by "Power-down wake-up event", it indicates that resume from Power-down mode
-     * |        |          |The flag is set if the EINT0~5, GPIO, UART0~3, WDT, BOD, RTC, TMR0~3, I2C0~1 or wake-up occurred.
+     * |        |          |The flag is set if the EINT0~5, GPIO, USBH, USBD, UART0~3, WDT, BOD, RTC, TMR0~3, I2C0~1 or wake-up occurred.
      * |        |          |Note1: Write 1 to clear the bit to 0.
      * |        |          |Note2: This bit works only if PDWKIEN (CLK_PWRCTL[5]) set to 1.
      * |[7]     |PDEN      |System Power-Down Enable (Write Protect)
@@ -1041,6 +1043,9 @@ typedef struct
      * |[3]     |EBICKEN   |EBI Controller Clock Enable Bit
      * |        |          |0 = EBI peripheral clock Disabled.
      * |        |          |1 = EBI peripheral clock Enabled.
+     * |[4]     |USBHCKEN  |USB HOST Controller Clock Enable Bit
+     * |        |          |0 = USB HOST peripheral clock Disabled.
+     * |        |          |1 = USB HOST peripheral clock Enabled.
      * |[7]     |CRCCKEN   |CRC Generator Controller Clock Enable Bit
      * |        |          |0 = CRC peripheral clock Disabled.
      * |        |          |1 = CRC peripheral clock Enabled.
@@ -1101,6 +1106,9 @@ typedef struct
      * |[19]    |UART3CKEN |UART3 Clock Enable Bit
      * |        |          |0 = UART3 clock Disabled.
      * |        |          |1 = UART3 clock Enabled.
+     * |[27]    |USBDCKEN  |USB Device Clock Enable Bit
+     * |        |          |0 = USB Device clock Disabled.
+     * |        |          |1 = USB Device clock Enabled.
      * |[28]    |EADCCKEN  |Enhanced Analog-Digital-Converter (EADC) Clock Enable Bit
      * |        |          |0 = EADC clock Disabled.
      * |        |          |1 = EADC clock Enabled.
@@ -1155,6 +1163,9 @@ typedef struct
      * |        |          |0 = APB1 BUS clock source from HCLK.
      * |        |          |1 = APB1 BUS clock source from HCLK/2.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * |[8]     |USBCKSEL  |USB Clock Source Selection (Write Protect)
+     * |        |          |0 = USBH and USBD clock source from PLL.
+     * |        |          |1 = USBH and USBD clock source from HIRC48M.
      * @var CLK_T::CLKSEL1
      * Offset: 0x14  Clock Source Select Control Register 1
      * ---------------------------------------------------------------------------------------------------
@@ -1254,6 +1265,8 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[3:0]   |HCLKDIV   |HCLK Clock Divide Number From HCLK Clock Source
      * |        |          |HCLK clock frequency = (HCLK clock source frequency) / (HCLKDIV + 1).
+     * |[7:4]   |USBDIV    |USB Clock Divide Number From PLL Clock
+     * |        |          |USB clock frequency = (PLL frequency) / (USBDIV + 1).
      * |[11:8]  |UARTDIV   |UART Clock Divide Number From UART Clock Source
      * |        |          |UART clock frequency = (UART clock source frequency) / (UARTDIV + 1).
      * |[23:16] |EADCDIV   |EADC Clock Divide Number From EADC Clock Source
@@ -1473,6 +1486,9 @@ typedef struct
 #define CLK_AHBCLK_EBICKEN_Pos           (3)                                               /*!< CLK_T::AHBCLK: EBICKEN Position           */
 #define CLK_AHBCLK_EBICKEN_Msk           (0x1ul << CLK_AHBCLK_EBICKEN_Pos)                 /*!< CLK_T::AHBCLK: EBICKEN Mask               */
 
+#define CLK_AHBCLK_USBHCKEN_Pos          (4)                                               /*!< CLK_T::AHBCLK: USBHCKEN Position          */
+#define CLK_AHBCLK_USBHCKEN_Msk          (0x1ul << CLK_AHBCLK_USBHCKEN_Pos)                /*!< CLK_T::AHBCLK: USBHCKEN Mask              */
+
 #define CLK_AHBCLK_CRCCKEN_Pos           (7)                                               /*!< CLK_T::AHBCLK: CRCCKEN Position           */
 #define CLK_AHBCLK_CRCCKEN_Msk           (0x1ul << CLK_AHBCLK_CRCCKEN_Pos)                 /*!< CLK_T::AHBCLK: CRCCKEN Mask               */
 
@@ -1524,6 +1540,9 @@ typedef struct
 #define CLK_APBCLK0_UART3CKEN_Pos        (19)                                              /*!< CLK_T::APBCLK0: UART3CKEN Position        */
 #define CLK_APBCLK0_UART3CKEN_Msk        (0x1ul << CLK_APBCLK0_UART3CKEN_Pos)              /*!< CLK_T::APBCLK0: UART3CKEN Mask            */
 
+#define CLK_APBCLK0_USBDCKEN_Pos         (27)                                              /*!< CLK_T::APBCLK0: USBDCKEN Position         */
+#define CLK_APBCLK0_USBDCKEN_Msk         (0x1ul << CLK_APBCLK0_USBDCKEN_Pos)               /*!< CLK_T::APBCLK0: USBDCKEN Mask             */
+
 #define CLK_APBCLK0_EADCCKEN_Pos         (28)                                              /*!< CLK_T::APBCLK0: EADCCKEN Position         */
 #define CLK_APBCLK0_EADCCKEN_Msk         (0x1ul << CLK_APBCLK0_EADCCKEN_Pos)               /*!< CLK_T::APBCLK0: EADCCKEN Mask             */
 
@@ -1550,6 +1569,9 @@ typedef struct
 
 #define CLK_CLKSEL0_PCLK1SEL_Pos         (7)                                               /*!< CLK_T::CLKSEL0: PCLK1SEL Position         */
 #define CLK_CLKSEL0_PCLK1SEL_Msk         (0x1ul << CLK_CLKSEL0_PCLK1SEL_Pos)               /*!< CLK_T::CLKSEL0: PCLK1SEL Mask             */
+
+#define CLK_CLKSEL0_USBCKSEL_Pos         (8)                                               /*!< CLK_T::CLKSEL0: USBCKSEL Position         */
+#define CLK_CLKSEL0_USBCKSEL_Msk         (0x1ul << CLK_CLKSEL0_USBCKSEL_Pos)               /*!< CLK_T::CLKSEL0: USBCKSEL Mask             */
 
 #define CLK_CLKSEL1_WDTSEL_Pos           (0)                                               /*!< CLK_T::CLKSEL1: WDTSEL Position           */
 #define CLK_CLKSEL1_WDTSEL_Msk           (0x3ul << CLK_CLKSEL1_WDTSEL_Pos)                 /*!< CLK_T::CLKSEL1: WDTSEL Mask               */
@@ -1595,6 +1617,9 @@ typedef struct
 
 #define CLK_CLKDIV0_HCLKDIV_Pos          (0)                                               /*!< CLK_T::CLKDIV0: HCLKDIV Position          */
 #define CLK_CLKDIV0_HCLKDIV_Msk          (0xful << CLK_CLKDIV0_HCLKDIV_Pos)                /*!< CLK_T::CLKDIV0: HCLKDIV Mask              */
+
+#define CLK_CLKDIV0_USBDIV_Pos           (4)                                               /*!< CLK_T::CLKDIV0: USBDIV Position           */
+#define CLK_CLKDIV0_USBDIV_Msk           (0xful << CLK_CLKDIV0_USBDIV_Pos)                 /*!< CLK_T::CLKDIV0: USBDIV Mask               */
 
 #define CLK_CLKDIV0_UARTDIV_Pos          (8)                                               /*!< CLK_T::CLKDIV0: UARTDIV Position          */
 #define CLK_CLKDIV0_UARTDIV_Msk          (0xful << CLK_CLKDIV0_UARTDIV_Pos)                /*!< CLK_T::CLKDIV0: UARTDIV Mask              */
@@ -9691,6 +9716,12 @@ typedef struct
      * |        |          |0 = EBI controller normal operation.
      * |        |          |1 = EBI controller reset.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * |[4]     |USBHRST   |USBH Controller Reset (Write Protect)
+     * |        |          |Set this bit to 1 will generate a reset signal to the USB host controller.
+     * |        |          |User needs to set this bit to 0 to release from the reset state.
+     * |        |          |0 = USBH controller normal operation.
+     * |        |          |1 = USBH controller reset.
+     * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[7]     |CRCRST    |CRC Calculation Unit Reset (Write Protect)
      * |        |          |Set this bit to 1 will generate a reset signal to the CRC calculation module.
      * |        |          |User needs to set this bit to 0 to release from the reset state.
@@ -9741,6 +9772,9 @@ typedef struct
      * |[19]    |UART3RST  |UART3 Controller Reset
      * |        |          |0 = UART3 controller normal operation.
      * |        |          |1 = UART3 controller reset.
+     * |[27]    |USBDRST   |USB Device Controller Reset
+     * |        |          |0 = USB device controller normal operation.
+     * |        |          |1 = USB device controller reset.
      * |[28]    |EADCRST   |EADC Controller Reset
      * |        |          |0 = EADC controller normal operation.
      * |        |          |1 = EADC controller reset.
@@ -9868,6 +9902,22 @@ typedef struct
      * |        |          |01011 = VREF is internal 3.072V.
      * |        |          |01111 = VREF is internal 4.096V.
      * |        |          |Others = Reserved.
+     * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * @var SYS_T::USBPHY
+     * Offset: 0x2C  USB PHY Control Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[1:0]   |USBROLE   |USB Role Option (Write Protect)
+     * |        |          |These two bits are used to select the role of USB.
+     * |        |          |00 = Standard USB Device mode.
+     * |        |          |01 = Standard USB Host mode.
+     * |        |          |10 = ID dependent mode.
+     * |        |          |11 = On-The-Go device mode.
+     * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
+     * |[8]     |LDO33EN   |USB LDO33 Enable Bit (Write Protect)
+     * |        |          |0 = USB LDO33 Disabled.
+     * |        |          |1 = USB LDO33 Enabled.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
      * @var SYS_T::GPA_MFPL
      * Offset: 0x30  GPIOA Low Byte Multiple Function Control Register
@@ -10030,6 +10080,10 @@ typedef struct
      * |        |          |This bit enables BIST test for CACHE RAM
      * |        |          |0 = system CACHE BIST Disabled.
      * |        |          |1 = system CACHE BIST Enabled.
+     * |[4]     |USBBIST   |USB BIST Enable Bit
+     * |        |          |This bit enables BIST test for USB RAM
+     * |        |          |0 = system USB BIST Disabled.
+     * |        |          |1 = system USB BIST Enabled.
      * @var SYS_T::SRAM_BISTSTS
      * Offset: 0xD4  System SRAM BIST Test Status Register
      * ---------------------------------------------------------------------------------------------------
@@ -10044,6 +10098,9 @@ typedef struct
      * |[2]     |CRBISTEF  |CACHE SRAM BIST Fail Flag
      * |        |          |0 = System CACHE RAM BIST test pass.
      * |        |          |1 = System CACHE RAM BIST test fail.
+     * |[4]     |USBBEF    |USB SRAM BIST Fail Flag
+     * |        |          |0 = USB SRAM BIST test pass.
+     * |        |          |1 = USB SRAM BIST test fail.
      * |[16]    |SRBEND0   |1st SRAM BIST Test Finish
      * |        |          |0 = 1st system SRAM BIST active.
      * |        |          |1 = 1st system SRAM BIST finish.
@@ -10053,6 +10110,9 @@ typedef struct
      * |[18]    |CRBEND    |CACHE SRAM BIST Test Finish
      * |        |          |0 = System CACHE RAM BIST is active.
      * |        |          |1 = System CACHE RAM BIST test finish.
+     * |[20]    |USBBEND   |USB SRAM BIST Test Finish
+     * |        |          |0 = USB SRAM BIST is active.
+     * |        |          |1 = USB SRAM BIST test finish.
      * @var SYS_T::IRCTCTL
      * Offset: 0xF0  IRC Trim Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -10139,6 +10199,7 @@ typedef struct
      * |        |          |SYS_BODCTL: address 0x4000_0018
      * |        |          |SYS_PORCTL: address 0x4000_0024
      * |        |          |SYS_VREFCTL: address 0x4000_0028
+     * |        |          |SYS_USBPHY: address 0x4000_002C
      * |        |          |CLK_PWRCTL: address 0x4000_0200 (bit[6] is not protected for power wake-up interrupt clear)
      * |        |          |SYS_SRAM_BISTCTL: address 0x4000_00D0
      * |        |          |CLK_APBCLK0 [0]: address 0x4000_0208 (bit[0] is watchdog clock enable)
@@ -10204,7 +10265,7 @@ typedef struct
      * |        |          |1 = The trim operation is stopped if clock is inaccuracy.
      * |[10]    |REFCKSEL  |Reference Clock Selection
      * |        |          |0 = HIRC trim 48M reference clock is from LXT (32.768 kHz) or HXT(12MHz).
-     * |        |          |1 = HIRC trim 48M reference clock is from HXT(12MHz).
+     * |        |          |1 = HIRC trim 48M reference clock is from internal USB synchronous mode or HXT(12MHz).
      * @var SYS_T::IRC48MTIEN
      * Offset: 0x134  IRC48M Trim Interrupt Enable Register
      * ---------------------------------------------------------------------------------------------------
@@ -10255,7 +10316,7 @@ typedef struct
     __I  uint32_t RESERVE1[1];
     __IO uint32_t PORCTL;        /* Offset: 0x24  Power-On-Reset Controller Register                                 */
     __IO uint32_t VREFCTL;       /* Offset: 0x28  VREF Control Register                                              */
-    __IO uint32_t RESERVE2[1];
+    __IO uint32_t USBPHY;        /* Offset: 0x2C  USB PHY Control Register                                           */
     __IO uint32_t GPA_MFPL;      /* Offset: 0x30  GPIOA Low Byte Multiple Function Control Register                  */
     __IO uint32_t GPA_MFPH;      /* Offset: 0x34  GPIOA High Byte Multiple Function Control Register                 */
     __IO uint32_t GPB_MFPL;      /* Offset: 0x38  GPIOB Low Byte Multiple Function Control Register                  */
@@ -10267,16 +10328,16 @@ typedef struct
     __IO uint32_t GPE_MFPL;      /* Offset: 0x50  GPIOE Low Byte Multiple Function Control Register                  */
     __IO uint32_t GPE_MFPH;      /* Offset: 0x54  GPIOE High Byte Multiple Function Control Register                 */
     __IO uint32_t GPF_MFPL;      /* Offset: 0x58  GPIOF Low Byte Multiple Function Control Register                  */
-    __I  uint32_t RESERVE3[29];
+    __I  uint32_t RESERVE2[29];
     __IO uint32_t SRAM_BISTCTL;  /* Offset: 0xD0  System SRAM BIST Test Control Register                             */
     __I  uint32_t SRAM_BISTSTS;  /* Offset: 0xD4  System SRAM BIST Test Status Register                              */
-    __I  uint32_t RESERVE4[6];
+    __I  uint32_t RESERVE3[6];
     __IO uint32_t IRCTCTL;       /* Offset: 0xF0  IRC Trim Control Register                                          */
     __IO uint32_t IRCTIEN;       /* Offset: 0xF4  IRC Trim Interrupt Enable Register                                 */
     __IO uint32_t IRCTISTS;      /* Offset: 0xF8  IRC Trim Interrupt Status Register                                 */
-    __I  uint32_t RESERVE5[1];
+    __I  uint32_t RESERVE4[1];
     __IO uint32_t REGLCTL;       /* Offset: 0x100  Register Lock Control Register                                    */
-    __I  uint32_t RESERVE6[11];
+    __I  uint32_t RESERVE5[11];
     __IO uint32_t IRC48MTCTL;    /* Offset: 0x130 IRC48M Trim Control Register                                       */
     __IO uint32_t IRC48MTIEN;    /* Offset: 0x134 IRC48M Trim Interrupt Enable Register                              */
     __IO uint32_t IRC48MTISTS;   /* Offset: 0x138 IRC48M Trim Interrupt Status Register                              */
@@ -10328,6 +10389,9 @@ typedef struct
 #define SYS_IPRST0_EBIRST_Pos            (3)                                               /*!< SYS_T::IPRST0: EBIRST Position            */
 #define SYS_IPRST0_EBIRST_Msk            (0x1ul << SYS_IPRST0_EBIRST_Pos)                  /*!< SYS_T::IPRST0: EBIRST Mask                */
 
+#define SYS_IPRST0_USBHRST_Pos           (4)                                               /*!< SYS_T::IPRST0: USBHRST Position           */
+#define SYS_IPRST0_USBHRST_Msk           (0x1ul << SYS_IPRST0_USBHRST_Pos)                 /*!< SYS_T::IPRST0: USBHRST Mask               */
+
 #define SYS_IPRST0_CRCRST_Pos            (7)                                               /*!< SYS_T::IPRST0: CRCRST Position            */
 #define SYS_IPRST0_CRCRST_Msk            (0x1ul << SYS_IPRST0_CRCRST_Pos)                  /*!< SYS_T::IPRST0: CRCRST Mask                */
 
@@ -10369,6 +10433,9 @@ typedef struct
 
 #define SYS_IPRST1_UART3RST_Pos          (19)                                              /*!< SYS_T::IPRST1: UART3RST Position          */
 #define SYS_IPRST1_UART3RST_Msk          (0x1ul << SYS_IPRST1_UART3RST_Pos)                /*!< SYS_T::IPRST1: UART3RST Mask              */
+
+#define SYS_IPRST1_USBDRST_Pos           (27)                                              /*!< SYS_T::IPRST1: USBDRST Position           */
+#define SYS_IPRST1_USBDRST_Msk           (0x1ul << SYS_IPRST1_USBDRST_Pos)                 /*!< SYS_T::IPRST1: USBDRST Mask               */
 
 #define SYS_IPRST1_EADCRST_Pos           (28)                                              /*!< SYS_T::IPRST1: EADCRST Position           */
 #define SYS_IPRST1_EADCRST_Msk           (0x1ul << SYS_IPRST1_EADCRST_Pos)                 /*!< SYS_T::IPRST1: EADCRST Mask               */
@@ -10423,6 +10490,12 @@ typedef struct
 
 #define SYS_VREFCTL_VREFCTL_Pos          (0)                                               /*!< SYS_T::VREFCTL: VREFCTL Position          */
 #define SYS_VREFCTL_VREFCTL_Msk          (0x1ful << SYS_VREFCTL_VREFCTL_Pos)               /*!< SYS_T::VREFCTL: VREFCTL Mask              */
+
+#define SYS_USBPHY_USBROLE_Pos           (0)                                               /*!< SYS_T::USBPHY: USBROLE Position           */
+#define SYS_USBPHY_USBROLE_Msk           (0x3ul << SYS_USBPHY_USBROLE_Pos)                 /*!< SYS_T::USBPHY: USBROLE Mask               */
+
+#define SYS_USBPHY_LDO33EN_Pos           (8)                                               /*!< SYS_T::USBPHY: LDO33EN Position           */
+#define SYS_USBPHY_LDO33EN_Msk           (0x1ul << SYS_USBPHY_LDO33EN_Pos)                 /*!< SYS_T::USBPHY: LDO33EN Mask               */
 
 #define SYS_GPA_MFPL_PA0MFP_Pos          (0)                                               /*!< SYS_T::GPA_MFPL: PA0MFP Position          */
 #define SYS_GPA_MFPL_PA0MFP_Msk          (0xful << SYS_GPA_MFPL_PA0MFP_Pos)                /*!< SYS_T::GPA_MFPL: PA0MFP Mask              */
@@ -10694,6 +10767,9 @@ typedef struct
 #define SYS_SRAM_BISTCTL_CRBIST_Pos      (2)                                               /*!< SYS_T::SRAM_BISTCTL: CRBIST Position      */
 #define SYS_SRAM_BISTCTL_CRBIST_Msk      (0x1ul << SYS_SRAM_BISTCTL_CRBIST_Pos)            /*!< SYS_T::SRAM_BISTCTL: CRBIST Mask          */
 
+#define SYS_SRAM_BISTCTL_USBBIST_Pos     (4)                                               /*!< SYS_T::SRAM_BISTCTL: USBBIST Position     */
+#define SYS_SRAM_BISTCTL_USBBIST_Msk     (0x1ul << SYS_SRAM_BISTCTL_USBBIST_Pos)           /*!< SYS_T::SRAM_BISTCTL: USBBIST Mask         */
+
 #define SYS_SRAM_BISTSTS_SRBISTEF0_Pos   (0)                                               /*!< SYS_T::SRAM_BISTSTS: SRBISTEF0 Position   */
 #define SYS_SRAM_BISTSTS_SRBISTEF0_Msk   (0x1ul << SYS_SRAM_BISTSTS_SRBISTEF0_Pos)         /*!< SYS_T::SRAM_BISTSTS: SRBISTEF0 Mask       */
 
@@ -10703,6 +10779,9 @@ typedef struct
 #define SYS_SRAM_BISTSTS_CRBISTEF_Pos    (2)                                               /*!< SYS_T::SRAM_BISTSTS: CRBISTEF Position    */
 #define SYS_SRAM_BISTSTS_CRBISTEF_Msk    (0x1ul << SYS_SRAM_BISTSTS_CRBISTEF_Pos)          /*!< SYS_T::SRAM_BISTSTS: CRBISTEF Mask        */
 
+#define SYS_SRAM_BISTSTS_USBBEF_Pos      (4)                                               /*!< SYS_T::SRAM_BISTSTS: USBBEF Position      */
+#define SYS_SRAM_BISTSTS_USBBEF_Msk      (0x1ul << SYS_SRAM_BISTSTS_USBBEF_Pos)            /*!< SYS_T::SRAM_BISTSTS: USBBEF Mask          */
+
 #define SYS_SRAM_BISTSTS_SRBEND0_Pos     (16)                                              /*!< SYS_T::SRAM_BISTSTS: SRBEND0 Position     */
 #define SYS_SRAM_BISTSTS_SRBEND0_Msk     (0x1ul << SYS_SRAM_BISTSTS_SRBEND0_Pos)           /*!< SYS_T::SRAM_BISTSTS: SRBEND0 Mask         */
 
@@ -10711,6 +10790,9 @@ typedef struct
 
 #define SYS_SRAM_BISTSTS_CRBEND_Pos      (18)                                              /*!< SYS_T::SRAM_BISTSTS: CRBEND Position      */
 #define SYS_SRAM_BISTSTS_CRBEND_Msk      (0x1ul << SYS_SRAM_BISTSTS_CRBEND_Pos)            /*!< SYS_T::SRAM_BISTSTS: CRBEND Mask          */
+
+#define SYS_SRAM_BISTSTS_USBBEND_Pos     (20)                                              /*!< SYS_T::SRAM_BISTSTS: USBBEND Position     */
+#define SYS_SRAM_BISTSTS_USBBEND_Msk     (0x1ul << SYS_SRAM_BISTSTS_USBBEND_Pos)           /*!< SYS_T::SRAM_BISTSTS: USBBEND Mask         */
 
 #define SYS_IRCTCTL_FREQSEL_Pos          (0)                                               /*!< SYS_T::IRCTCTL: FREQSEL Position          */
 #define SYS_IRCTCTL_FREQSEL_Msk          (0x3ul << SYS_IRCTCTL_FREQSEL_Pos)                /*!< SYS_T::IRCTCTL: FREQSEL Mask              */
@@ -12106,6 +12188,1287 @@ typedef struct
 /**@}*/ /* end of UART register group */
 
 
+/*---------------------- Universal Serial Bus Controller -------------------------*/
+/**
+    @addtogroup USB Universal Serial Bus Controller(USB)
+    Memory Mapped Structure for USB Controller
+@{ */
+
+/**
+  * @brief USBD endpoints register
+  */
+
+typedef struct
+{
+
+
+    /**
+     * @var USBD_EP_T::BUFSEG
+     * Offset: 0x500/0x510/0x520/0x530/0x540/0x550/0x560/0x570  Endpoint 0~7 Buffer Segmentation Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[8:3]   |BUFSEG    |Endpoint Buffer Segmentation
+     * |        |          |It is used to indicate the offset address for each endpoint with the USB SRAM starting address The effective starting address of the endpoint is
+     * |        |          |USB_SRAM address + { BUFSEG[8:3], 3'b000}
+     * |        |          |Where the USB_SRAM address = USBD_BA+0x100h.
+     * |        |          |Refer to the section 5.4.4.7 for the endpoint SRAM structure and its description.
+     * @var USBD_EP_T::MXPLD
+     * Offset: 0x504/0x514/0x524/0x534/0x544/0x554/0x564/0x574  Endpoint 0~7 Maximal Payload Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[8:0]   |MXPLD     |Maximal Payload
+     * |        |          |Define the data length which is transmitted to host (IN token) or the actual data length which is received from the host (OUT token).
+     * |        |          |It also used to indicate that the endpoint is ready to be transmitted in IN token or received in OUT token.
+     * |        |          |(1) When the register is written by CPU,
+     * |        |          |For IN token, the value of MXPLD is used to define the data length to be transmitted and indicate the data buffer is ready.
+     * |        |          |For OUT token, it means that the controller is ready to receive data from the host and the value of MXPLD is the maximal data length comes from host.
+     * |        |          |(2) When the register is read by CPU,
+     * |        |          |For IN token, the value of MXPLD is indicated by the data length be transmitted to host
+     * |        |          |For OUT token, the value of MXPLD is indicated the actual data length receiving from host.
+     * |        |          |Note: Once MXPLD is written, the data packets will be transmitted/received immediately after IN/OUT token arrived.
+     * @var USBD_EP_T::CFG
+     * Offset: 0x508/0x518/0x528/0x538/0x548/0x558/0x568/0x578  Endpoint 0~7 Configuration Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[3:0]   |EPNUM     |Endpoint Number
+     * |        |          |These bits are used to define the endpoint number of the current endpoint.
+     * |[4]     |ISOCH     |Isochronous Endpoint
+     * |        |          |This bit is used to set the endpoint as Isochronous endpoint, no handshake.
+     * |        |          |0 = No Isochronous endpoint.
+     * |        |          |1 = Isochronous endpoint.
+     * |[6:5]   |STATE     |Endpoint STATE
+     * |        |          |00 = Endpoint is Disabled.
+     * |        |          |01 = Out endpoint.
+     * |        |          |10 = IN endpoint.
+     * |        |          |11 = Undefined.
+     * |[7]     |DSQSYNC   |Data Sequence Synchronization
+     * |        |          |0 = DATA0 PID.
+     * |        |          |1 = DATA1 PID.
+     * |        |          |Note: It is used to specify the DATA0 or DATA1 PID in the following IN token transaction.
+     * |        |          |Hardware will toggle automatically in IN token base on the bit.
+     * |[9]     |CSTALL    |Clear STALL Response
+     * |        |          |0 = Disable the device to clear the STALL handshake in setup stage.
+     * |        |          |1 = Clear the device to response STALL handshake in setup stage.
+     * @var USBD_EP_T::CFGP
+     * Offset: 0x50C/0x51C/0x52C/0x53C/0x54C/0x55C/0x56C/0x57C  Endpoint 0~7 Set Stall and Clear In/Out Ready Control Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |CLRRDY    |Clear Ready
+     * |        |          |When the USB_MXPLD register is set by user, it means that the endpoint is ready to transmit or receive data.
+     * |        |          |If the user wants to turn off this transaction before the transaction start, users can set this bit to 1 to turn it off and it will be cleared to 0 automatically.
+     * |        |          |For IN token, write 1 to clear the IN token had ready to transmit the data to USB.
+     * |        |          |For OUT token, write 1 to clear the OUT token had ready to receive the data from USB.
+     * |        |          |This bit is write 1 only and is always 0 when it is read back.
+     * |[1]     |SSTALL    |Set STALL
+     * |        |          |0 = Disable the device to response STALL.
+     * |        |          |1 = Set the device to respond STALL automatically.
+     */
+
+    __IO uint32_t BUFSEG;        /* Offset: 0x500/0x510/0x520/0x530/0x540/0x550/0x560/0x570  Endpoint 0~7 Buffer Segmentation Register */
+    __IO uint32_t MXPLD;         /* Offset: 0x504/0x514/0x524/0x534/0x544/0x554/0x564/0x574  Endpoint 0~7 Maximal Payload Register */
+    __IO uint32_t CFG;           /* Offset: 0x508/0x518/0x528/0x538/0x548/0x558/0x568/0x578  Endpoint 0~7 Configuration Register */
+    __IO uint32_t CFGP;          /* Offset: 0x50C/0x51C/0x52C/0x53C/0x54C/0x55C/0x56C/0x57C  Endpoint 0~7 Set Stall and Clear In/Out Ready Control Register */
+
+} USBD_EP_T;
+
+
+
+
+
+typedef struct
+{
+
+
+    /**
+     * @var USBD_T::INTEN
+     * Offset: 0x00  USB Interrupt Enable Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |BUSIEN    |Bus Event Interrupt Enable
+     * |        |          |0 = BUS event interrupt Disabled.
+     * |        |          |1 = BUS event interrupt Enabled.
+     * |[1]     |USBIEN    |USB Event Interrupt Enable
+     * |        |          |0 = USB event interrupt Disabled.
+     * |        |          |1 = USB event interrupt Enabled.
+     * |[2]     |VBDETIEN  |VBUS Detection Interrupt Enable
+     * |        |          |0 = Floating detection Interrupt Disabled.
+     * |        |          |1 = Floating detection Interrupt Enabled.
+     * |[3]     |NEVWKIEN  |USB No-Event-Wake-Up Interrupt Enable
+     * |        |          |0 = No-Event-Wake-up Interrupt Disabled.
+     * |        |          |1 = No-Event-Wake-up Interrupt Enabled.
+     * |[8]     |WKEN      |Wake-Up Function Enable
+     * |        |          |0 = USB wake-up function Disabled.
+     * |        |          |1 = USB wake-up function Enabled.
+     * |[15]    |INNAKEN   |Active NAK Function And Its Status In IN Token
+     * |        |          |0 = When device responds NAK after receiving IN token, IN NAK status will not be
+     * |        |          |    updated to USBD_EPSTS register, so that the USB interrupt event will not be asserted.
+     * |        |          |1 = IN NAK status will be updated to USBD_EPSTS register and the USB interrupt event
+     * |        |          |    will be asserted, when the device responds NAK after receiving IN token.
+     * @var USBD_T::INTSTS
+     * Offset: 0x04  USB Interrupt Event Status Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |BUSIF     |BUS Interrupt Status
+     * |        |          |The BUS event means that there is one of the suspense or the resume function in the bus.
+     * |        |          |0 = No BUS event occurred.
+     * |        |          |1 = Bus event occurred; check USB_ATTR[3:0] to know which kind of bus event was occurred, cleared by write 1 to USB_INTSTS[0].
+     * |[1]     |USBIF     |USB Event Interrupt Status
+     * |        |          |The USB event includes the SETUP Token, IN Token, OUT ACK, ISO IN, or ISO OUT events in the bus.
+     * |        |          |0 = No USB event occurred.
+     * |        |          |1 = USB event occurred, check EPSTS0~7 to know which kind of USB event occurred.
+     * |        |          |Cleared by write 1 to USB_INTSTS[1] or EPEVT0~7 and SETUP (USB_INTSTS[31]).
+     * |[2]     |VBDETIF   |VBUS Detection Interrupt Status
+     * |        |          |0 = There is not attached/detached event in the USB.
+     * |        |          |1 = There is attached/detached event in the USB bus and it is cleared by write 1 to USB_INTSTS[2].
+     * |[3]     |NEVWKIF   |USB No-Event-Wake-Up Interrupt Status
+     * |        |          |0 = No Wake-up event occurred.
+     * |        |          |1 = Wake-up event occurred, cleared by write 1 to USB_INTSTS[3].
+     * |[4]     |SOFIF     |Start of Frame Interrupt Status
+     * |        |          |0 = SOF event does not occur.
+     * |        |          |1 = SOF event occurred, cleared by write 1 to USBD_INTSTS[4].
+     * |[16]    |EPEVT0    |Endpoint 0's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 0.
+     * |        |          |1 = USB event occurred on Endpoint 0, check USB_EPSTS[10:8] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[16] or USB_INTSTS[1].
+     * |[17]    |EPEVT1    |Endpoint 1's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 1.
+     * |        |          |1 = USB event occurred on Endpoint 1, check USB_EPSTS[13:11] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[17] or USB_INTSTS[1].
+     * |[18]    |EPEVT2    |Endpoint 2's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 2.
+     * |        |          |1 = USB event occurred on Endpoint 2, check USB_EPSTS[16:14] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[18] or USB_INTSTS[1].
+     * |[19]    |EPEVT3    |Endpoint 3's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 3.
+     * |        |          |1 = USB event occurred on Endpoint 3, check USB_EPSTS[19:17] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[19] or USB_INTSTS[1].
+     * |[20]    |EPEVT4    |Endpoint 4's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 4.
+     * |        |          |1 = USB event occurred on Endpoint 4, check USB_EPSTS[22:20] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[20] or USB_INTSTS[1].
+     * |[21]    |EPEVT5    |Endpoint 5's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 5.
+     * |        |          |1 = USB event occurred on Endpoint 5, check USB_EPSTS[25:23] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[21] or USB_INTSTS[1].
+     * |[22]    |EPEVT6    |Endpoint 6's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 6.
+     * |        |          |1 = USB event occurred on Endpoint 6, check USB_EPSTS[28:26] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[22] or USB_INTSTS[1].
+     * |[23]    |EPEVT7    |Endpoint 7's USB Event Status
+     * |        |          |0 = No event occurred on endpoint 7.
+     * |        |          |1 = USB event occurred on Endpoint 7, check USB_EPSTS[31:29] to know which kind of USB event was occurred, cleared by write 1 to USB_INTSTS[23] or USB_INTSTS[1].
+     * |[31]    |SETUP     |Setup Event Status
+     * |        |          |0 = No Setup event.
+     * |        |          |1 = SETUP event occurred, cleared by write 1 to USB_INTSTS[31].
+     * @var USBD_T::FADDR
+     * Offset: 0x08  USB Device Function Address Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[6:0]   |FADDR     |USB Device Function Address
+     * @var USBD_T::EPSTS
+     * Offset: 0x0C  USB Endpoint Status Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[7]     |OV        |Overrun
+     * |        |          |It indicates that the received data is over the maximum payload number or not.
+     * |        |          |0 = No overrun.
+     * |        |          |1 = Out Data is more than the Max Payload in MXPLD register or the Setup Data is more than 8 Bytes.
+     * |[10:8]  |EPSTS0    |Endpoint 0 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * |[13:11] |EPSTS1    |Endpoint 1 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * |[16:14] |EPSTS2    |Endpoint 2 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * |[19:17] |EPSTS3    |Endpoint 3 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * |[22:20] |EPSTS4    |Endpoint 4 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * |[25:23] |EPSTS5    |Endpoint 5 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * |[28:26] |EPSTS6    |Endpoint 6 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * |[31:29] |EPSTS7    |Endpoint 7 Bus Status
+     * |        |          |These bits are used to indicate the current status of this endpoint
+     * |        |          |000 = In ACK.
+     * |        |          |001 = In NAK.
+     * |        |          |010 = Out Packet Data0 ACK.
+     * |        |          |110 = Out Packet Data1 ACK.
+     * |        |          |011 = Setup ACK.
+     * |        |          |111 = Isochronous transfer end.
+     * @var USBD_T::ATTR
+     * Offset: 0x10  USB Bus Status and Attribution Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |USBRST    |USB Reset Status
+     * |        |          |0 = Bus no reset.
+     * |        |          |1 = Bus reset when SE0 (single-ended 0) is presented more than 2.5us.
+     * |        |          |Note: This bit is read only.
+     * |[1]     |SUSPEND   |Suspend Status
+     * |        |          |0 = Bus no suspend.
+     * |        |          |1 = Bus idle more than 3ms, either cable is plugged off or host is sleeping.
+     * |        |          |Note: This bit is read only.
+     * |[2]     |RESUME    |Resume Status
+     * |        |          |0 = No bus resume.
+     * |        |          |1 = Resume from suspend.
+     * |        |          |Note: This bit is read only.
+     * |[3]     |TOUT      |Time-Out Status
+     * |        |          |0 = No time-out.
+     * |        |          |1 = No Bus response more than 18 bits time.
+     * |        |          |Note: This bit is read only.
+     * |[4]     |PHYEN     |PHY Transceiver Function Enable
+     * |        |          |0 = PHY transceiver function Disabled.
+     * |        |          |1 = PHY transceiver function Enabled.
+     * |[5]     |RWAKEUP   |Remote Wake-Up
+     * |        |          |0 = Release the USB bus from K state.
+     * |        |          |1 = Force USB bus to K (USB_D+ low, USB_D- high) state, used for remote wake-up.
+     * |[7]     |USBEN     |USB Controller Enable
+     * |        |          |0 = USB Controller Disabled.
+     * |        |          |1 = USB Controller Enabled.
+     * |[8]     |DPPUEN    |Pull-Up Resistor On USB_D+ Enable
+     * |        |          |0 = Pull-up resistor in USB_D+ pin Disabled.
+     * |        |          |1 = Pull-up resistor in USB_D+ pin Enabled.
+     * |[9]     |PWRDN     |Power Down PHY Transceiver, Low Active
+     * |        |          |0 = Power down related circuits of PHY transceiver.
+     * |        |          |1 = Turn on related circuits of  PHY transceiver.
+     * |[10]    |BYTEM     |CPU Access USB SRAM Size Mode Selection
+     * |        |          |0 = Word mode: The size of the transfer from CPU to USB SRAM can be Word only.
+     * |        |          |1 = Byte mode: The size of the transfer from CPU to USB SRAM can be Byte only.
+     * @var USBD_T::VBUSDET
+     * Offset: 0x14  USB Device VBUS Detection Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |FLDET     |Device VBUS Detected
+     * |        |          |0 = Controller is not attached into the USB host.
+     * |        |          |1 =Controller is attached into the BUS.
+     * @var USBD_T::STBUFSEG
+     * Offset: 0x18  Setup Token Buffer Segmentation Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[8:3]   |STBUFSEG  |Setup Token Buffer Segmentation
+     * |        |          |It is used to indicate the offset address for the SETUP token with the USB Device SRAM starting address The effective starting address is
+     * |        |          |USB_SRAM address + {STBUFSEG[8:3], 3'b000}
+     * |        |          |Where the USB_SRAM address = USBD_BA+0x100h.
+     * |        |          |Note: It is used for SETUP token only.
+     * @var USBD_T::SE0
+     * Offset: 0x90  USB Drive SE0 Control Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |DRVSE0    |Drive Single Ended Zero In USB Bus
+     * |        |          |The Single Ended Zero (SE0) is when both lines (USB_D+ and USB_D-) are being pulled low.
+     * |        |          |0 = None.
+     * |        |          |1 = Force USB PHY transceiver to drive SE0.
+     */
+
+    __IO uint32_t INTEN;         /* Offset: 0x00  USB Interrupt Enable Register                                      */
+    __IO uint32_t INTSTS;        /* Offset: 0x04  USB Interrupt Event Status Register                                */
+    __IO uint32_t FADDR;         /* Offset: 0x08  USB Device Function Address Register                               */
+    __I  uint32_t EPSTS;         /* Offset: 0x0C  USB Endpoint Status Register                                       */
+    __IO uint32_t ATTR;          /* Offset: 0x10  USB Bus Status and Attribution Register                            */
+    __I  uint32_t VBUSDET;       /* Offset: 0x14  USB Device VBUS Detection Register                                 */
+    __IO uint32_t STBUFSEG;      /* Offset: 0x18  Setup Token Buffer Segmentation Register                           */
+    __I  uint32_t RESERVE0[29];
+    __IO uint32_t SE0;           /* Offset: 0x90  USB Drive SE0 Control Register                                     */
+    __I  uint32_t RESERVE1[283];
+    USBD_EP_T     EP[8];         /* Offset: 0x500 ~ 0x57C  USB End Point 0 ~ 7 Configuration Register                */
+
+} USBD_T;
+
+
+
+/**
+    @addtogroup USB_CONST USB Bit Field Definition
+    Constant Definitions for USB Controller
+@{ */
+
+#define USBD_INTEN_BUSIEN_Pos            (0)                                               /*!< USBD_T::INTEN: BUSIEN Position            */
+#define USBD_INTEN_BUSIEN_Msk            (0x1ul << USBD_INTEN_BUSIEN_Pos)                  /*!< USBD_T::INTEN: BUSIEN Mask                */
+
+#define USBD_INTEN_USBIEN_Pos            (1)                                               /*!< USBD_T::INTEN: USBIEN Position            */
+#define USBD_INTEN_USBIEN_Msk            (0x1ul << USBD_INTEN_USBIEN_Pos)                  /*!< USBD_T::INTEN: USBIEN Mask                */
+
+#define USBD_INTEN_VBDETIEN_Pos          (2)                                               /*!< USBD_T::INTEN: VBDETIEN Position          */
+#define USBD_INTEN_VBDETIEN_Msk          (0x1ul << USBD_INTEN_VBDETIEN_Pos)                /*!< USBD_T::INTEN: VBDETIEN Mask              */
+
+#define USBD_INTEN_NEVWKIEN_Pos          (3)                                               /*!< USBD_T::INTEN: NEVWKIEN Position          */
+#define USBD_INTEN_NEVWKIEN_Msk          (0x1ul << USBD_INTEN_NEVWKIEN_Pos)                /*!< USBD_T::INTEN: NEVWKIEN Mask              */
+
+#define USBD_INTEN_WKEN_Pos              (8)                                               /*!< USBD_T::INTEN: WKEN Position              */
+#define USBD_INTEN_WKEN_Msk              (0x1ul << USBD_INTEN_WKEN_Pos)                    /*!< USBD_T::INTEN: WKEN Mask                  */
+
+#define USBD_INTEN_INNAKEN_Pos           (15)                                              /*!< USBD_T::INTEN: INNAKEN Position           */
+#define USBD_INTEN_INNAKEN_Msk           (0x1ul << USBD_INTEN_INNAKEN_Pos)                 /*!< USBD_T::INTEN: INNAKEN Mask               */
+
+#define USBD_INTSTS_BUSIF_Pos            (0)                                               /*!< USBD_T::INTSTS: BUSIF Position            */
+#define USBD_INTSTS_BUSIF_Msk            (0x1ul << USBD_INTSTS_BUSIF_Pos)                  /*!< USBD_T::INTSTS: BUSIF Mask                */
+
+#define USBD_INTSTS_USBIF_Pos            (1)                                               /*!< USBD_T::INTSTS: USBIF Position            */
+#define USBD_INTSTS_USBIF_Msk            (0x1ul << USBD_INTSTS_USBIF_Pos)                  /*!< USBD_T::INTSTS: USBIF Mask                */
+
+#define USBD_INTSTS_VBDETIF_Pos          (2)                                               /*!< USBD_T::INTSTS: VBDETIF Position          */
+#define USBD_INTSTS_VBDETIF_Msk          (0x1ul << USBD_INTSTS_VBDETIF_Pos)                /*!< USBD_T::INTSTS: VBDETIF Mask              */
+
+#define USBD_INTSTS_NEVWKIF_Pos          (3)                                               /*!< USBD_T::INTSTS: NEVWKIF Position          */
+#define USBD_INTSTS_NEVWKIF_Msk          (0x1ul << USBD_INTSTS_NEVWKIF_Pos)                /*!< USBD_T::INTSTS: NEVWKIF Mask              */
+
+#define USBD_INTSTS_SOFIF_Pos            (4)                                               /*!< USBD_T::INTSTS: SOFIF Position          */
+#define USBD_INTSTS_SOFIF_Msk            (0x1ul << USBD_INTSTS_SOFIF_Pos)                  /*!< USBD_T::INTSTS: SOFIF Mask              */
+
+#define USBD_INTSTS_EPEVT0_Pos           (16)                                              /*!< USBD_T::INTSTS: EPEVT0 Position           */
+#define USBD_INTSTS_EPEVT0_Msk           (0x1ul << USBD_INTSTS_EPEVT0_Pos)                 /*!< USBD_T::INTSTS: EPEVT0 Mask               */
+
+#define USBD_INTSTS_EPEVT1_Pos           (17)                                              /*!< USBD_T::INTSTS: EPEVT1 Position           */
+#define USBD_INTSTS_EPEVT1_Msk           (0x1ul << USBD_INTSTS_EPEVT1_Pos)                 /*!< USBD_T::INTSTS: EPEVT1 Mask               */
+
+#define USBD_INTSTS_EPEVT2_Pos           (18)                                              /*!< USBD_T::INTSTS: EPEVT2 Position           */
+#define USBD_INTSTS_EPEVT2_Msk           (0x1ul << USBD_INTSTS_EPEVT2_Pos)                 /*!< USBD_T::INTSTS: EPEVT2 Mask               */
+
+#define USBD_INTSTS_EPEVT3_Pos           (19)                                              /*!< USBD_T::INTSTS: EPEVT3 Position           */
+#define USBD_INTSTS_EPEVT3_Msk           (0x1ul << USBD_INTSTS_EPEVT3_Pos)                 /*!< USBD_T::INTSTS: EPEVT3 Mask               */
+
+#define USBD_INTSTS_EPEVT4_Pos           (20)                                              /*!< USBD_T::INTSTS: EPEVT4 Position           */
+#define USBD_INTSTS_EPEVT4_Msk           (0x1ul << USBD_INTSTS_EPEVT4_Pos)                 /*!< USBD_T::INTSTS: EPEVT4 Mask               */
+
+#define USBD_INTSTS_EPEVT5_Pos           (21)                                              /*!< USBD_T::INTSTS: EPEVT5 Position           */
+#define USBD_INTSTS_EPEVT5_Msk           (0x1ul << USBD_INTSTS_EPEVT5_Pos)                 /*!< USBD_T::INTSTS: EPEVT5 Mask               */
+
+#define USBD_INTSTS_EPEVT6_Pos           (22)                                              /*!< USBD_T::INTSTS: EPEVT6 Position           */
+#define USBD_INTSTS_EPEVT6_Msk           (0x1ul << USBD_INTSTS_EPEVT6_Pos)                 /*!< USBD_T::INTSTS: EPEVT6 Mask               */
+
+#define USBD_INTSTS_EPEVT7_Pos           (23)                                              /*!< USBD_T::INTSTS: EPEVT7 Position           */
+#define USBD_INTSTS_EPEVT7_Msk           (0x1ul << USBD_INTSTS_EPEVT7_Pos)                 /*!< USBD_T::INTSTS: EPEVT7 Mask               */
+
+#define USBD_INTSTS_SETUP_Pos            (31)                                              /*!< USBD_T::INTSTS: SETUP Position            */
+#define USBD_INTSTS_SETUP_Msk            (0x1ul << USBD_INTSTS_SETUP_Pos)                  /*!< USBD_T::INTSTS: SETUP Mask                */
+
+#define USBD_FADDR_FADDR_Pos             (0)                                               /*!< USBD_T::FADDR: FADDR Position             */
+#define USBD_FADDR_FADDR_Msk             (0x7ful << USBD_FADDR_FADDR_Pos)                  /*!< USBD_T::FADDR: FADDR Mask                 */
+
+#define USBD_EPSTS_OV_Pos                (7)                                               /*!< USBD_T::EPSTS: OV Position                */
+#define USBD_EPSTS_OV_Msk                (0x1ul << USBD_EPSTS_OV_Pos)                      /*!< USBD_T::EPSTS: OV Mask                    */
+
+#define USBD_EPSTS_EPSTS0_Pos            (8)                                               /*!< USBD_T::EPSTS: EPSTS0 Position            */
+#define USBD_EPSTS_EPSTS0_Msk            (0x7ul << USBD_EPSTS_EPSTS0_Pos)                  /*!< USBD_T::EPSTS: EPSTS0 Mask                */
+
+#define USBD_EPSTS_EPSTS1_Pos            (11)                                              /*!< USBD_T::EPSTS: EPSTS1 Position            */
+#define USBD_EPSTS_EPSTS1_Msk            (0x7ul << USBD_EPSTS_EPSTS1_Pos)                  /*!< USBD_T::EPSTS: EPSTS1 Mask                */
+
+#define USBD_EPSTS_EPSTS2_Pos            (14)                                              /*!< USBD_T::EPSTS: EPSTS2 Position            */
+#define USBD_EPSTS_EPSTS2_Msk            (0x7ul << USBD_EPSTS_EPSTS2_Pos)                  /*!< USBD_T::EPSTS: EPSTS2 Mask                */
+
+#define USBD_EPSTS_EPSTS3_Pos            (17)                                              /*!< USBD_T::EPSTS: EPSTS3 Position            */
+#define USBD_EPSTS_EPSTS3_Msk            (0x7ul << USBD_EPSTS_EPSTS3_Pos)                  /*!< USBD_T::EPSTS: EPSTS3 Mask                */
+
+#define USBD_EPSTS_EPSTS4_Pos            (20)                                              /*!< USBD_T::EPSTS: EPSTS4 Position            */
+#define USBD_EPSTS_EPSTS4_Msk            (0x7ul << USBD_EPSTS_EPSTS4_Pos)                  /*!< USBD_T::EPSTS: EPSTS4 Mask                */
+
+#define USBD_EPSTS_EPSTS5_Pos            (23)                                              /*!< USBD_T::EPSTS: EPSTS5 Position            */
+#define USBD_EPSTS_EPSTS5_Msk            (0x7ul << USBD_EPSTS_EPSTS5_Pos)                  /*!< USBD_T::EPSTS: EPSTS5 Mask                */
+
+#define USBD_EPSTS_EPSTS6_Pos            (26)                                              /*!< USBD_T::EPSTS: EPSTS6 Position            */
+#define USBD_EPSTS_EPSTS6_Msk            (0x7ul << USBD_EPSTS_EPSTS6_Pos)                  /*!< USBD_T::EPSTS: EPSTS6 Mask                */
+
+#define USBD_EPSTS_EPSTS7_Pos            (29)                                              /*!< USBD_T::EPSTS: EPSTS7 Position            */
+#define USBD_EPSTS_EPSTS7_Msk            (0x7ul << USBD_EPSTS_EPSTS7_Pos)                  /*!< USBD_T::EPSTS: EPSTS7 Mask                */
+
+#define USBD_ATTR_USBRST_Pos             (0)                                               /*!< USBD_T::ATTR: USBRST Position             */
+#define USBD_ATTR_USBRST_Msk             (0x1ul << USBD_ATTR_USBRST_Pos)                   /*!< USBD_T::ATTR: USBRST Mask                 */
+
+#define USBD_ATTR_SUSPEND_Pos            (1)                                               /*!< USBD_T::ATTR: SUSPEND Position            */
+#define USBD_ATTR_SUSPEND_Msk            (0x1ul << USBD_ATTR_SUSPEND_Pos)                  /*!< USBD_T::ATTR: SUSPEND Mask                */
+
+#define USBD_ATTR_RESUME_Pos             (2)                                               /*!< USBD_T::ATTR: RESUME Position             */
+#define USBD_ATTR_RESUME_Msk             (0x1ul << USBD_ATTR_RESUME_Pos)                   /*!< USBD_T::ATTR: RESUME Mask                 */
+
+#define USBD_ATTR_TOUT_Pos               (3)                                               /*!< USBD_T::ATTR: TOUT Position               */
+#define USBD_ATTR_TOUT_Msk               (0x1ul << USBD_ATTR_TOUT_Pos)                     /*!< USBD_T::ATTR: TOUT Mask                   */
+
+#define USBD_ATTR_PHYEN_Pos              (4)                                               /*!< USBD_T::ATTR: PHYEN Position              */
+#define USBD_ATTR_PHYEN_Msk              (0x1ul << USBD_ATTR_PHYEN_Pos)                    /*!< USBD_T::ATTR: PHYEN Mask                  */
+
+#define USBD_ATTR_RWAKEUP_Pos            (5)                                               /*!< USBD_T::ATTR: RWAKEUP Position            */
+#define USBD_ATTR_RWAKEUP_Msk            (0x1ul << USBD_ATTR_RWAKEUP_Pos)                  /*!< USBD_T::ATTR: RWAKEUP Mask                */
+
+#define USBD_ATTR_USBEN_Pos              (7)                                               /*!< USBD_T::ATTR: USBEN Position              */
+#define USBD_ATTR_USBEN_Msk              (0x1ul << USBD_ATTR_USBEN_Pos)                    /*!< USBD_T::ATTR: USBEN Mask                  */
+
+#define USBD_ATTR_DPPUEN_Pos             (8)                                               /*!< USBD_T::ATTR: DPPUEN Position             */
+#define USBD_ATTR_DPPUEN_Msk             (0x1ul << USBD_ATTR_DPPUEN_Pos)                   /*!< USBD_T::ATTR: DPPUEN Mask                 */
+
+#define USBD_ATTR_PWRDN_Pos              (9)                                               /*!< USBD_T::ATTR: PWRDN Position              */
+#define USBD_ATTR_PWRDN_Msk              (0x1ul << USBD_ATTR_PWRDN_Pos)                    /*!< USBD_T::ATTR: PWRDN Mask                  */
+
+#define USBD_ATTR_BYTEM_Pos              (10)                                              /*!< USBD_T::ATTR: BYTEM Position              */
+#define USBD_ATTR_BYTEM_Msk              (0x1ul << USBD_ATTR_BYTEM_Pos)                    /*!< USBD_T::ATTR: BYTEM Mask                  */
+
+#define USBD_VBUSDET_VBUSDET_Pos         (0)                                               /*!< USBD_T::VBUSDET: VBUSDET Position         */
+#define USBD_VBUSDET_VBUSDET_Msk         (0x1ul << USBD_VBUSDET_VBUSDET_Pos)               /*!< USBD_T::VBUSDET: VBUSDET Mask             */
+
+#define USBD_STBUFSEG_STBUFSEG_Pos       (3)                                               /*!< USBD_T::STBUFSEG: STBUFSEG Position       */
+#define USBD_STBUFSEG_STBUFSEG_Msk       (0x3ful << USBD_STBUFSEG_STBUFSEG_Pos)            /*!< USBD_T::STBUFSEG: STBUFSEG Mask           */
+
+#define USBD_SE0_SE0_Pos                 (0)                                               /*!< USBD_T::SE0: SE0 Position                 */
+#define USBD_SE0_SE0_Msk                 (0x1ul << USBD_SE0_SE0_Pos)                       /*!< USBD_T::SE0: SE0 Mask                     */
+
+#define USBD_BUFSEG_BUFSEG_Pos           (3)                                               /*!< USBD_EP_T::BUFSEG: BUFSEG Position          */
+#define USBD_BUFSEG_BUFSEG_Msk           (0x3ful << USBD_BUFSEG_BUFSEG_Pos)                /*!< USBD_EP_T::BUFSEG: BUFSEG Mask              */
+
+#define USBD_MXPLD_MXPLD_Pos             (0)                                               /*!< USBD_EP_T::MXPLD: MXPLD Position            */
+#define USBD_MXPLD_MXPLD_Msk             (0x1fful << USBD_MXPLD_MXPLD_Pos)                 /*!< USBD_EP_T::MXPLD: MXPLD Mask                */
+
+#define USBD_CFG_EPNUM_Pos               (0)                                               /*!< USBD_EP_T::CFG: EPNUM Position              */
+#define USBD_CFG_EPNUM_Msk               (0xful << USBD_CFG_EPNUM_Pos)                     /*!< USBD_EP_T::CFG: EPNUM Mask                  */
+
+#define USBD_CFG_ISOCH_Pos               (4)                                               /*!< USBD_EP_T::CFG: ISOCH Position              */
+#define USBD_CFG_ISOCH_Msk               (0x1ul << USBD_CFG_ISOCH_Pos)                     /*!< USBD_EP_T::CFG: ISOCH Mask                  */
+
+#define USBD_CFG_STATE_Pos               (5)                                               /*!< USBD_EP_T::CFG: STATE Position              */
+#define USBD_CFG_STATE_Msk               (0x3ul << USBD_CFG_STATE_Pos)                     /*!< USBD_EP_T::CFG: STATE Mask                  */
+
+#define USBD_CFG_DSQSYNC_Pos             (7)                                               /*!< USBD_EP_T::CFG: DSQSYNC Position            */
+#define USBD_CFG_DSQSYNC_Msk             (0x1ul << USBD_CFG_DSQSYNC_Pos)                   /*!< USBD_EP_T::CFG: DSQSYNC Mask                */
+
+#define USBD_CFG_CSTALL_Pos              (9)                                               /*!< USBD_EP_T::CFG: CSTALL Position             */
+#define USBD_CFG_CSTALL_Msk              (0x1ul << USBD_CFG_CSTALL_Pos)                    /*!< USBD_EP_T::CFG: CSTALL Mask                 */
+
+#define USBD_CFGP_CLRRDY_Pos             (0)                                               /*!< USBD_EP_T::CFGP: CLRRDY Position            */
+#define USBD_CFGP_CLRRDY_Msk             (0x1ul << USBD_CFGP_CLRRDY_Pos)                   /*!< USBD_EP_T::CFGP: CLRRDY Mask                */
+
+#define USBD_CFGP_SSTALL_Pos             (1)                                               /*!< USBD_EP_T::CFGP: SSTALL Position            */
+#define USBD_CFGP_SSTALL_Msk             (0x1ul << USBD_CFGP_SSTALL_Pos)                   /*!< USBD_EP_T::CFGP: SSTALL Mask                */
+
+/**@}*/ /* USB_CONST */
+/**@}*/ /* end of USB register group */
+
+
+/*---------------------- USB Host Controller -------------------------*/
+/**
+    @addtogroup USBH USB Host Controller(USBH)
+    Memory Mapped Structure for USBH Controller
+@{ */
+
+
+typedef struct
+{
+
+
+
+
+    /**
+     * @var USBH_T::HcRevision
+     * Offset: 0x00  Host Controller Revision Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[7:0]   |REV       |Revision Number
+     * |        |          |Indicates the Open HCI Specification revision number implemented by the Hardware.
+     * |        |          |Host Controller supports 1.1 specification.
+     * |        |          |(X.Y = XYh).
+     * @var USBH_T::HcControl
+     * Offset: 0x04  Host Controller Control Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[1:0]   |CBSR      |Control Bulk Service Ratio
+     * |        |          |This specifies the service ratio between Control and Bulk EDs.
+     * |        |          |Before processing any of the non-periodic lists, HC must compare the ratio specified with its internal count on how many nonempty Control EDs have been processed, in determining whether to continue serving another Control ED or switching to Bulk EDs.
+     * |        |          |The internal count will be retained when crossing the frame boundary.
+     * |        |          |In case of reset, HCD is responsible for restoring this.
+     * |        |          |Value.
+     * |        |          |00 = Number of Control EDs over Bulk EDs served is 1:1.
+     * |        |          |01 = Number of Control EDs over Bulk EDs served is 2:1.
+     * |        |          |10 = Number of Control EDs over Bulk EDs served is 3:1.
+     * |        |          |11 = Number of Control EDs over Bulk EDs served is 4:1.
+     * |[2]     |PLE       |Periodic List Enable Bit
+     * |        |          |When set, this bit enables processing of the Periodic (interrupt and Isochronous) list.
+     * |        |          |The Host Controller checks this bit prior to attempting any periodic transfers in a frame.
+     * |        |          |0 = Disable the processing of the Periodic (Interrupt and Isochronous) list after next SOF (Start-Of-Frame).
+     * |        |          |1 = Enable the processing of the Periodic (Interrupt and Isochronous) list in the next frame.
+     * |        |          |Note: To enable the processing of the Isochronous list, user has to set both PLE and IE (HcControl[3]) high.
+     * |[3]     |IE        |Isochronous List Enable Bit
+     * |        |          |Both ISOEn and PLE (HcControl[2]) high enables Host Controller to process the Isochronous list.
+     * |        |          |Either ISOEn or PLE (HcControl[2]) is low disables Host Controller to process the Isochronous list.
+     * |        |          |0 = Disable the processing of the Isochronous list after next SOF (Start-Of-Frame).
+     * |        |          |1 = Enable the processing of the Isochronous list in the next frame if the PLE (HcControl[2]) is high, too.
+     * |[4]     |CLE       |Control List Enable Bit
+     * |        |          |0 = Disable processing of the Control list after next SOF (Start-Of-Frame).
+     * |        |          |1 = Enable processing of the Control list in the next frame.
+     * |[5]     |BLE       |Bulk List Enable Bit
+     * |        |          |0 = Disable processing of the Bulk list after next SOF (Start-Of-Frame).
+     * |        |          |1 = Enable processing of the Bulk list in the next frame.
+     * |[7:6]   |HCFS      |Host Controller Functional State
+     * |        |          |This field sets the Host Controller state.
+     * |        |          |The Controller may force a state change from USBSUSPEND to USBRESUME after detecting resume signaling from a downstream port.
+     * |        |          |States are:
+     * |        |          |00 = USBSUSPEND.
+     * |        |          |01 = USBRESUME.
+     * |        |          |10 = USBOPERATIONAL.
+     * |        |          |11 = USBRESET.
+     * @var USBH_T::HcCommandStatus
+     * Offset: 0x08  Host Controller CMD Status Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |HCR       |Host Controller Reset
+     * |        |          |This bit is set to initiate the software reset of Host Controller.
+     * |        |          |This bit is cleared by the Host Controller, upon completed of the reset operation.
+     * |        |          |This bit, when set, didn't reset the Root Hub and no subsequent reset signaling be asserted to its downstream ports.
+     * |        |          |0 = Host Controller is not in software reset state.
+     * |        |          |1 = Host Controller is in software reset state.
+     * |[1]     |CLF       |Control List Filled
+     * |        |          |Set high to indicate there is an active TD on the Control List.
+     * |        |          |It may be set by either software or the Host Controller and cleared by the Host Controller each time it begins processing the head of the Control List.
+     * |        |          |0 = No active TD found or Host Controller begins to process the head of the Control list.
+     * |        |          |1 = An active TD added or found on the Control list.
+     * |[2]     |BLF       |Bulk List Filled
+     * |        |          |Set high to indicate there is an active TD on the Bulk list.
+     * |        |          |This bit may be set by either software or the Host Controller and cleared by the Host Controller each time it begins processing the head of the Bulk list.
+     * |        |          |0 = No active TD found or Host Controller begins to process the head of the Bulk list.
+     * |        |          |1 = An active TD added or found on the Bulk list.
+     * |[17:16] |SOC       |Schedule Overrun Count
+     * |        |          |These bits are incremented on each scheduling overrun error.
+     * |        |          |It is initialized to 00b and wraps around at 11b.
+     * |        |          |This will be incremented when a scheduling overrun is detected even if SO (HcIntSts[0]) has already been set.
+     * @var USBH_T::HcInterruptStatus
+     * Offset: 0x0C  Host Controller Interrupt Status Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |SO        |Scheduling Overrun
+     * |        |          |Set when the List Processor determines a Schedule Overrun has occurred.
+     * |        |          |0 = Schedule Overrun didn't occur.
+     * |        |          |1 = Schedule Overrun has occurred.
+     * |[1]     |WDH       |Write Back Done Head
+     * |        |          |Set after the Host Controller has written HcDoneHead to HccaDoneHead.
+     * |        |          |Further updates of the HccaDoneHead will not occur until this bit has been cleared.
+     * |        |          |0 =.Host Controller didn't update HccaDoneHead.
+     * |        |          |1 =.Host Controller has written HcDoneHead to HccaDoneHead.
+     * |[2]     |SF        |Start Of Frame
+     * |        |          |Set when the Frame Management functional block signals a 'Start of Frame' event.
+     * |        |          |Host Control generates a SOF token at the same time.
+     * |        |          |0 =.Not the start of a frame.
+     * |        |          |1 =.Indicate the start of a frame and Host Controller generates a SOF token.
+     * |[3]     |RD        |Resume Detected
+     * |        |          |Set when Host Controller detects resume signaling on a downstream port.
+     * |        |          |0 = No resume signaling detected on a downstream port.
+     * |        |          |1 = Resume signaling detected on a downstream port.
+     * |[5]     |FNO       |Frame Number Overflow
+     * |        |          |This bit is set when bit 15 of Frame Number changes from 1 to 0 or from 0 to 1.
+     * |        |          |0 = The bit 15 of Frame Number didn't change.
+     * |        |          |1 = The bit 15 of Frame Number changes from 1 to 0 or from 0 to 1.
+     * |[6]     |RHSC      |Root Hub Status Change
+     * |        |          |This bit is set when the content of HcRhSts or the content of HcRhPrt1 register has changed.
+     * |        |          |0 = The content of HcRhSts and the content of HcRhPrt1 register didn't change.
+     * |        |          |1 = The content of HcRhSts or the content of HcRhPrt1 register has changed.
+     * @var USBH_T::HcInterruptEnable
+     * Offset: 0x10  Host Controller Interrupt Enable Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |SO        |Scheduling Overrun Enable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable interrupt generation due to SO (HcIntSts[0]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to SO (HcIntSts[0]) disabled.
+     * |        |          |1 = Interrupt generation due to SO (HcIntSts[0]) enabled.
+     * |[1]     |WDH       |Write Back Done Head Enable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable interrupt generation due to WDH (HcIntSts[1]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to WDH (HcIntSts[1]) disabled.
+     * |        |          |1 = Interrupt generation due to WDH (HcIntSts[1]) enabled.
+     * |[2]     |SF        |Start Of Frame Enable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable interrupt generation due to SF (HcIntSts[2]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to SF (HcIntSts[2]) disabled.
+     * |        |          |1 = Interrupt generation due to SF (HcIntSts[2]) enabled.
+     * |[3]     |RD        |Resume Detected Enable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable interrupt generation due to RD (HcIntSts[3]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to RD (HcIntSts[3]) disabled.
+     * |        |          |1 = Interrupt generation due to RD (HcIntSts[3]) enabled.
+     * |[5]     |FNO       |Frame Number Overflow Enable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable interrupt generation due to FNO (HcIntSts[5]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to FNO (HcIntSts[5]) disabled.
+     * |        |          |1 = Interrupt generation due to FNO (HcIntSts[5]) enabled.
+     * |[6]     |RHSC      |Root Hub Status Change Enable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable interrupt generation due to RHSC (HcIntSts[6]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to RHSC (HcIntSts[6]) disabled.
+     * |        |          |1 = Interrupt generation due to RHSC (HcIntSts[6]) enabled.
+     * |[31]    |MIE       |Master Interrupt Enable Bit
+     * |        |          |This bit is a global interrupt enable.
+     * |        |          |A write of '1' allows interrupts to be enabled via the specific enable bits listed above.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable interrupt generation due to RHSC (HcIntSts[6]), FNO (HcIntSts[5]), RD (HcIntSts[3]), SF (HcIntSts[2]), WDH (HcIntSts[1]) or SO (HcIntSts[0]) if the corresponding bit in HcIntEn is high.
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to RHSC (HcIntSts[6]), FNO (HcIntSts[5]), RD (HcIntSts[3]), SF (HcIntSts[2]), WDH (HcIntSts[1]) or SO (HcIntSts[0]) disabled even if the corresponding bit in HcIntEn is high.
+     * |        |          |1 = Interrupt generation due to RHSC (HcIntSts[6]), FNO (HcIntSts[5]), RD (HcIntSts[3]), SF (HcIntSts[2]), WDH (HcIntSts[1]) or SO (HcIntSts[0]) enabled if the corresponding bit in HcIntEn is high.
+     * @var USBH_T::HcInterruptDisable
+     * Offset: 0x14  Host Controller Interrupt Disable Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |SO        |Scheduling Overrun Disable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Disable interrupt generation due to SO (HcIntSts[0]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to SO (HcIntSts[0]) disabled.
+     * |        |          |1 = Interrupt generation due to SO (HcIntSts[0]) enabled.
+     * |[1]     |WDH       |Write Back Done Head Disable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Disable interrupt generation due to WDH (HcIntSts[1]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to WDH (HcIntSts[1]) disabled.
+     * |        |          |1 = Interrupt generation due to WDH (HcIntSts[1]) enabled.
+     * |[2]     |SF        |Start Of Frame Disable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Disable interrupt generation due to SF (HcIntSts[2]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to SF (HcIntSts[2]) disabled.
+     * |        |          |1 = Interrupt generation due to SF (HcIntSts[2]) enabled.
+     * |[3]     |RD        |Resume Detected Disable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Disable interrupt generation due to RD (HcIntSts[3]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to RD (HcIntSts[3]) disabled.
+     * |        |          |1 = Interrupt generation due to RD (HcIntSts[3]) enabled.
+     * |[5]     |FNO       |Frame Number Overflow Disable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Disable interrupt generation due to FNO (HcIntSts[5]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to FNO (HcIntSts[5]) disabled.
+     * |        |          |1 = Interrupt generation due to FNO (HcIntSts[5]) enabled.
+     * |[6]     |RHSC      |Root Hub Status Change Disable Bit
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Disable interrupt generation due to RHSC (HcIntSts[6]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to RHSC (HcIntSts[6]) disabled.
+     * |        |          |1 = Interrupt generation due to RHSC (HcIntSts[6]) enabled.
+     * |[31]    |MIE       |Master Interrupt Disable Bit
+     * |        |          |Global interrupt disable. Writing '1' to disable all interrupts.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Disable interrupt generation due to RHSC (HcIntSts[6]), FNO (HcIntSts[5]), RD (HcIntSts[3]), SF (HcIntSts[2]), WDH (HcIntSts[1]) or SO (HcIntSts[0]) if the corresponding bit in HcIntEn is high.
+     * |        |          |Read Operation:
+     * |        |          |0 = Interrupt generation due to RHSC (HcIntSts[6]), FNO (HcIntSts[5]), RD (HcIntSts[3]), SF (HcIntSts[2]), WDH (HcIntSts[1]) or SO (HcIntSts[0]) disabled even if the corresponding bit in HcIntEn is high.
+     * |        |          |1 = Interrupt generation due to RHSC (HcIntSts[6]), FNO (HcIntSts[5]), RD (HcIntSts[3]), SF (HcIntSts[2]), WDH (HcIntSts[1]) or SO (HcIntSts[0]) enabled if the corresponding bit in HcIntEn is high.
+     * @var USBH_T::HcHCCA
+     * Offset: 0x18  Host Controller Communication Area Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:8]  |HCCA      |Host Controller Communication Area
+     * |        |          |Pointer to indicate base address of the Host Controller Communication Area (HCCA).
+     * @var USBH_T::HcPeriodCurrentED
+     * Offset: 0x1C  Host Controller Period Current ED Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:4]  |PCED      |Periodic Current ED
+     * |        |          |Pointer to indicate physical address of the current Isochronous or Interrupt Endpoint Descriptor.
+     * @var USBH_T::HcControlHeadED
+     * Offset: 0x20  Host Controller Control Head ED Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:4]  |CHED      |Control Head ED
+     * |        |          |Pointer to indicate physical address of the first Endpoint Descriptor of the Control list.
+     * @var USBH_T::HcControlCurrentED
+     * Offset: 0x24  Host Controller Control Current ED Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:4]  |CCED      |Control Current Head ED
+     * |        |          |Pointer to indicate the physical address of the current Endpoint Descriptor of the Control list.
+     * @var USBH_T::HcBulkHeadED
+     * Offset: 0x28  Host Controller Bulk Head ED Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:4]  |BHED      |Bulk Head ED
+     * |        |          |Pointer to indicate the physical address of the first Endpoint Descriptor of the Bulk list.
+     * @var USBH_T::HcBulkCurrentED
+     * Offset: 0x2C  Host Controller Bulk Current ED Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:4]  |BCED      |Bulk Current Head ED
+     * |        |          |Pointer to indicate the physical address of the current endpoint of the Bulk list.
+     * @var USBH_T::HcDoneHead
+     * Offset: 0x30  Host Controller Done Head Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:4]  |DH        |Done Head
+     * |        |          |Pointer to indicate the physical address of the last completed Transfer Descriptor that was added to the Done queue.
+     * @var USBH_T::HcFmInterval
+     * Offset: 0x34  Host Controller Frame Interval Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[13:0]  |FI        |Frame Interval
+     * |        |          |This field specifies the length of a frame as (bit times - 1).
+     * |        |          |For 12,000 bit times in a frame, a value of 11,999 is stored here.
+     * |[30:16] |FSMPS     |FS Largest Data Packet
+     * |        |          |This field specifies a value that is loaded into the Largest Data Packet Counter at the beginning of each frame.
+     * |[31]    |FIT       |Frame Interval Toggle
+     * |        |          |This bit is toggled by Host Controller Driver when it loads a new value into FI (HcFmIntv[13:0]).
+     * |        |          |0 = Host Controller Driver didn't load new value into FI (HcFmIntv[13:0]).
+     * |        |          |1 = Host Controller Driver loads a new value into FI (HcFmIntv[13:0]).
+     * @var USBH_T::HcFmRemaining
+     * Offset: 0x38  Host Controller Frame Remaining Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[13:0]  |FR        |Frame Remaining
+     * |        |          |When the Host Controller is in the USBOPERATIONAL state, this 14-bit field decrements each 12 MHz clock period.
+     * |        |          |When the count reaches 0, (end of frame) the counter reloads with Frame Interval.
+     * |        |          |In addition, the counter loads when the Host Controller transitions into USBOPERATIONAL.
+     * |[31]    |FRT       |Frame Remaining Toggle
+     * |        |          |This bit is loaded from the FIT (HcFmIntv[31]) whenever FR (HcFmRem[13:0]) reaches 0.
+     * @var USBH_T::HcFmNumber
+     * Offset: 0x3C  Host Controller Frame Number Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[15:0]  |FN        |Frame Number
+     * |        |          |This 16-bit incrementing counter field is incremented coincident with the re-load of FR (HcFmRem[13:0]).
+     * |        |          |The count rolls over from 'FFFFh' to '0h.'.
+     * @var USBH_T::HcPeriodicStart
+     * Offset: 0x40  Host Controller Periodic Start Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[13:0]  |PS        |Periodic Start
+     * |        |          |This field contains a value used by the List Processor to determine where in a frame the Periodic List processing must begin.
+     * @var USBH_T::HcLSThreshold
+     * Offset: 0x44  Host Controller Low-speed Threshold Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[11:0]  |LST       |Low-Speed Threshold
+     * |        |          |This field contains a value which is compared to the FR (HcFmRem[13:0]) field prior to initiating a Low-speed transaction.
+     * |        |          |The transaction is started only if FR (HcFmRem[13:0]) >= this field.
+     * |        |          |The value is calculated by Host Controller Driver with the consideration of transmission and setup overhead.
+     * @var USBH_T::HcRhDescriptorA
+     * Offset: 0x48  Host Controller Root Hub Descriptor A Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[7:0]   |NDP       |Number Downstream Ports
+     * |        |          |USB host control supports two downstream ports and only one port is available in this series of chip.
+     * |[8]     |PSM       |Power Switching Mode
+     * |        |          |This bit is used to specify how the power switching of the Root Hub ports is controlled.
+     * |        |          |0 = Global Switching.
+     * |        |          |1 = Individual Switching.
+     * |[11]    |OCPM      |Over Current Protection Mode
+     * |        |          |This bit describes how the over current status for the Root Hub ports reported.
+     * |        |          |This bit is only valid when NOCP (HcRhDeA[12]) is cleared.
+     * |        |          |0 = Global Over current.
+     * |        |          |1 = Individual Over current.
+     * |[12]    |NOCP      |No Over Current Protection
+     * |        |          |This bit describes how the over current status for the Root Hub ports reported.
+     * |        |          |0 = Over current status is reported.
+     * |        |          |1 = Over current status is not reported.
+     * @var USBH_T::HcRhDescriptorB
+     * Offset: 0x4C  Host Controller Root Hub Descriptor B Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[31:16] |PPCM      |Port Power Control Mask
+     * |        |          |Global power switching.
+     * |        |          |This field is only valid if PowerSwitchingMode is set (individual port switching).
+     * |        |          |When set, the port only responds to individual port power switching commands (Set/ClearPortPower).
+     * |        |          |When cleared, the port only responds to global power switching commands (Set/ClearGlobalPower).
+     * |        |          |0 = Port power controlled by global power switching.
+     * |        |          |1 = Port power controlled by port power switching.
+     * |        |          |Note: PPCM[15:2] and PPCM[0] are reserved.
+     * @var USBH_T::HcRhStatus
+     * Offset: 0x50  Host Controller Root Hub Status Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |LPS       |Clear Global Power
+     * |        |          |In global power mode (PSM (HcRhDeA[8]) = 0), this bit is written to one to clear all ports' power.
+     * |        |          |This bit always read as zero.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Clear global power.
+     * |[1]     |OCI       |Over Current Indicator
+     * |        |          |This bit reflects the state of the over current status pin.
+     * |        |          |This field is only valid if NOCP (HcRhDesA[12]) and OCPM (HcRhDesA[11]) are cleared.
+     * |        |          |0 = No over current condition.
+     * |        |          |1 = Over current condition.
+     * |[15]    |DRWE      |Device Remote Wakeup Enable Bit
+     * |        |          |This bit controls if port's Connect Status Change as a remote wake-up event.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Enable Connect Status Change as a remote wake-up event.
+     * |        |          |Read Operation:
+     * |        |          |0 = Connect Status Change as a remote wake-up event disabled.
+     * |        |          |1 = Connect Status Change as a remote wake-up event enabled.
+     * |[16]    |LPSC      |Set Global Power
+     * |        |          |In global power mode (PSM (HcRhDeA[8]) = 0), this bit is written to one to enable power to all ports.
+     * |        |          |This bit always read as zero.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Set global power.
+     * |[17]    |OCIC      |Over Current Indicator Change
+     * |        |          |This bit is set by hardware when a change has occurred in OCI (HcRhSts[1]).
+     * |        |          |Write 1 to clear this bit to zero.
+     * |        |          |0 = OCI (HcRhSts[1]) didn't change.
+     * |        |          |1 = OCI (HcRhSts[1]) change.
+     * |[31]    |CRWE      |Clear Remote Wake-up Enable Bit
+     * |        |          |This bit is use to clear DRWE (HcRhSts[15]).
+     * |        |          |This bit always read as zero.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Clear DRWE (HcRhSts[15]).
+     * @var USBH_T::HcRhPortStatus
+     * Offset: 0x54  Host Controller Root Hub Port Status [1]
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[0]     |CCS       |CurrentConnectStatus (Read) Or ClearPortEnable Bit (Write)
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Clear port enable.
+     * |        |          |Read Operation:
+     * |        |          |0 = No device connected.
+     * |        |          |1 = Device connected.
+     * |[1]     |PES       |Port Enable Status
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Set port enable.
+     * |        |          |Read Operation:
+     * |        |          |0 = Port Disabled.
+     * |        |          |1 = Port Enabled.
+     * |[2]     |PSS       |Port Suspend Status
+     * |        |          |This bit indicates the port is suspended
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Set port suspend.
+     * |        |          |Read Operation:
+     * |        |          |0 = Port is not suspended.
+     * |        |          |1 = Port is selectively suspended.
+     * |[3]     |POCI      |Port Over Current Indicator (Read) Or Clear Port Suspend (Write)
+     * |        |          |This bit reflects the state of the over current status pin dedicated to this port.
+     * |        |          |This field is only valid if NOCP (HcRhDeA[12]) is cleared and OCPM (HcRhDeA[11]) is set.
+     * |        |          |This bit is also used to initiate the selective result sequence for the port.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Clear port suspend.
+     * |        |          |Read Operation:
+     * |        |          |0 = No over current condition.
+     * |        |          |1 = Over current condition.
+     * |[4]     |PRS       |Port Reset Status
+     * |        |          |This bit reflects the reset state of the port.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Set port reset.
+     * |        |          |Read Operation
+     * |        |          |0 = Port reset signal is not active.
+     * |        |          |1 = Port reset signal is active.
+     * |[8]     |PPS       |Port Power Status
+     * |        |          |This bit reflects the power state of the port regardless of the power switching mode.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Port Power Enabled.
+     * |        |          |Read Operation:
+     * |        |          |0 = Port power is Disabled.
+     * |        |          |1 = Port power is Enabled.
+     * |[9]     |LSDA      |Low Speed Device Attached (Read) Or Clear Port Power (Write)
+     * |        |          |This bit defines the speed (and bud idle) of the attached device.
+     * |        |          |It is only valid when CCS (HcRhPrt1[0]) is set.
+     * |        |          |This bit is also used to clear port power.
+     * |        |          |Write Operation:
+     * |        |          |0 = No effect.
+     * |        |          |1 = Clear PPS (HcRhPrt1[8]).
+     * |        |          |Read Operation:
+     * |        |          |0 = Full Speed device.
+     * |        |          |1 = Low-speed device.
+     * |[16]    |CSC       |Connect Status Change
+     * |        |          |This bit indicates connect or disconnect event has been detected (CCS
+     * |        |          |(HcRhPrt1[0]) changed).
+     * |        |          |Write 1 to clear this bit to zero.
+     * |        |          |0 = No connect/disconnect event (CCS (HcRhPrt1[0]) didn't change).
+     * |        |          |1 = Hardware detection of connect/disconnect event (CCS
+     * |        |          |(HcRhPrt1[0]) changed).
+     * |[17]    |PESC      |Port Enable Status Change
+     * |        |          |This bit indicates that the port has been disabled (PES (HcRhPrt1[1]) cleared) due to a hardware event.
+     * |        |          |Write 1 to clear this bit to zero.
+     * |        |          |0 = PES (HcRhPrt1[1]) didn't change.
+     * |        |          |1 = PES (HcRhPrt1[1]) changed.
+     * |[18]    |PSSC      |Port Suspend Status Change
+     * |        |          |This bit indicates the completion of the selective resume sequence for the port.
+     * |        |          |Write 1 to clear this bit to zero.
+     * |        |          |0 = Port resume is not completed.
+     * |        |          |1 = Port resume completed.
+     * |[19]    |OCIC      |Port Over Current Indicator Change
+     * |        |          |This bit is set when POCI (HcRhPrt1[3]) changes.
+     * |        |          |Write 1 to clear this bit to zero.
+     * |        |          |0 = POCI (HcRhPrt1[3]) didn't change.
+     * |        |          |1 = POCI (HcRhPrt1[3]) changes.
+     * |[20]    |PRSC      |Port Reset Status Change
+     * |        |          |This bit indicates that the port reset signal has completed.
+     * |        |          |Write 1 to clear this bit to zero.
+     * |        |          |0 = Port reset is not complete.
+     * |        |          |1 = Port reset is complete.
+     * @var USBH_T::HcPhyControl
+     * Offset: 0x200  USB Host Controller PHY Control Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[27]    |STBYEN    |USB Transceiver Standby Enable Bit
+     * |        |          |This bit controls if USB transceiver could enter the standby mode to reduce power consumption.
+     * |        |          |0 = The USB transceiver would never enter the standby mode.
+     * |        |          |1 = The USB transceiver will enter standby mode while port is in power off state (port power is inactive).
+     * @var USBH_T::HcMiscControl
+     * Offset: 0x204  USB Host Controller Miscellaneous Control Register
+     * ---------------------------------------------------------------------------------------------------
+     * |Bits    |Field     |Descriptions
+     * | :----: | :----:   | :---- |
+     * |[1]     |ABORT     |AHB Bus ERROR Response
+     * |        |          |This bit indicates there is an ERROR response received in AHB bus.
+     * |        |          |0 = No ERROR response received.
+     * |        |          |1 = ERROR response received.
+     * |[3]     |OCAL      |Over Current Active Low
+     * |        |          |This bit controls the polarity of over current flag from external power IC.
+     * |        |          |0 = Over current flag is high active.
+     * |        |          |1 = Over current flag is low active.
+     * |[16]    |DPRT1     |Disable Port 1
+     * |        |          |This bit controls if the connection between USB host controller and transceiver of port 1 is disabled.
+     * |        |          |If the connection is disabled, the USB host controller will not recognize any event of USB bus.
+     * |        |          |Set this bit high, the transceiver of port 1 will also be forced into the standby mode no matter what USB host controller operation is.
+     * |        |          |0 = The connection between USB host controller and transceiver of port 1 is enabled.
+     * |        |          |1 = The connection between USB host controller and transceiver of port 1 is disabled and the transceiver of port 1 will also be forced into the standby mode.
+     */
+
+    __I  uint32_t HcRevision;    /* Offset: 0x00  Host Controller Revision Register                                  */
+    __IO uint32_t HcControl;     /* Offset: 0x04  Host Controller Control Register                                 */
+    __IO uint32_t HcCommandStatus; /* Offset: 0x08  Host Controller CMD Status Register                                */
+    __IO uint32_t HcInterruptStatus; /* Offset: 0x0C  Host Controller Interrupt Status Register                          */
+    __IO uint32_t HcInterruptEnable; /* Offset: 0x10  Host Controller Interrupt Enable Register                          */
+    __IO uint32_t HcInterruptDisable; /* Offset: 0x14  Host Controller Interrupt Disable Register                         */
+    __IO uint32_t HcHCCA;        /* Offset: 0x18  Host Controller Communication Area Register                        */
+    __IO uint32_t HcPeriodCurrentED; /* Offset: 0x1C  Host Controller Period Current ED Register                         */
+    __IO uint32_t HcControlHeadED; /* Offset: 0x20  Host Controller Control Head ED Register                           */
+    __IO uint32_t HcControlCurrentED; /* Offset: 0x24  Host Controller Control Current ED Register                        */
+    __IO uint32_t HcBulkHeadED;  /* Offset: 0x28  Host Controller Bulk Head ED Register                              */
+    __IO uint32_t HcBulkCurrentED; /* Offset: 0x2C  Host Controller Bulk Current ED Register                           */
+    __IO uint32_t HcDoneHead;    /* Offset: 0x30  Host Controller Done Head Register                                 */
+    __IO uint32_t HcFmInterval;  /* Offset: 0x34  Host Controller Frame Interval Register                            */
+    __I  uint32_t HcFmRemaining; /* Offset: 0x38  Host Controller Frame Remaining Register                           */
+    __I  uint32_t HcFmNumber;    /* Offset: 0x3C  Host Controller Frame Number Register                              */
+    __IO uint32_t HcPeriodicStart; /* Offset: 0x40  Host Controller Periodic Start Register                            */
+    __IO uint32_t HcLSThreshold; /* Offset: 0x44  Host Controller Low-speed Threshold Register                       */
+    __IO uint32_t HcRhDescriptorA; /* Offset: 0x48  Host Controller Root Hub Descriptor A Register                     */
+    __IO uint32_t HcRhDescriptorB; /* Offset: 0x4C  Host Controller Root Hub Descriptor B Register                     */
+    __IO uint32_t HcRhStatus;    /* Offset: 0x50  Host Controller Root Hub Status Register                           */
+    __IO uint32_t HcRhPortStatus[2]; /* Offset: 0x54  Host Controller Root Hub Port Status [1]                           */
+    __I  uint32_t RESERVE0[105];
+    __IO uint32_t HcPhyControl;  /* Offset: 0x200  USB Host Controller PHY Control Register                          */
+    __IO uint32_t HcMiscControl; /* Offset: 0x204  USB Host Controller Miscellaneous Control Register                */
+
+} USBH_T;
+
+
+
+
+/**
+    @addtogroup USBH_CONST USBH Bit Field Definition
+    Constant Definitions for USBH Controller
+@{ */
+
+#define USBH_HcRevision_REV_Pos          (0)                                               /*!< USBH_T::HcRevision: REV Position          */
+#define USBH_HcRevision_REV_Msk          (0xfful << USBH_HcRevision_REV_Pos)               /*!< USBH_T::HcRevision: REV Mask              */
+
+#define USBH_HcControl_CBSR_Pos          (0)                                               /*!< USBH_T::HcControl: CBSR Position          */
+#define USBH_HcControl_CBSR_Msk          (0x3ul << USBH_HcControl_CBSR_Pos)                /*!< USBH_T::HcControl: CBSR Mask              */
+
+#define USBH_HcControl_PLE_Pos           (2)                                               /*!< USBH_T::HcControl: CBSR Position          */
+#define USBH_HcControl_PLE_Msk           (0x1ul << USBH_HcControl_PLE_Pos)                 /*!< USBH_T::HcControl: CBSR Mask              */
+
+#define USBH_HcControl_IE_Pos            (3)                                               /*!< USBH_T::HcControl: IE Position            */
+#define USBH_HcControl_IE_Msk            (0x1ul << USBH_HcControl_IE_Pos)                  /*!< USBH_T::HcControl: IE Mask                */
+
+#define USBH_HcControl_CLE_Pos           (4)                                               /*!< USBH_T::HcControl: CLE Position           */
+#define USBH_HcControl_CLE_Msk           (0x1ul << USBH_HcControl_CLE_Pos)                 /*!< USBH_T::HcControl: CLE Mask               */
+
+#define USBH_HcControl_BLE_Pos           (5)                                               /*!< USBH_T::HcControl: BLE Position           */
+#define USBH_HcControl_BLE_Msk           (0x1ul << USBH_HcControl_BLE_Pos)                 /*!< USBH_T::HcControl: BLE Mask               */
+
+#define USBH_HcControl_HCFS_Pos          (6)                                               /*!< USBH_T::HcControl: HCFS Position          */
+#define USBH_HcControl_HCFS_Msk          (0x3ul << USBH_HcControl_HCFS_Pos)                /*!< USBH_T::HcControl: HCFS Mask              */
+
+#define USBH_HcCommandStatus_HCR_Pos     (0)                                               /*!< USBH_T::HcCommandStatus: HCR Position     */
+#define USBH_HcCommandStatus_HCR_Msk     (0x1ul << USBH_HcCommandStatus_HCR_Pos)           /*!< USBH_T::HcCommandStatus: HCR Mask         */
+
+#define USBH_HcCommandStatus_CLF_Pos     (1)                                               /*!< USBH_T::HcCommandStatus: CLF Position     */
+#define USBH_HcCommandStatus_CLF_Msk     (0x1ul << USBH_HcCommandStatus_CLF_Pos)           /*!< USBH_T::HcCommandStatus: CLF Mask         */
+
+#define USBH_HcCommandStatus_BLF_Pos     (2)                                               /*!< USBH_T::HcCommandStatus: BLF Position     */
+#define USBH_HcCommandStatus_BLF_Msk     (0x1ul << USBH_HcCommandStatus_BLF_Pos)           /*!< USBH_T::HcCommandStatus: BLF Mask         */
+
+#define USBH_HcCommandStatus_SOC_Pos     (16)                                              /*!< USBH_T::HcCommandStatus: SOC Position     */
+#define USBH_HcCommandStatus_SOC_Msk     (0x3ul << USBH_HcCommandStatus_SOC_Pos)           /*!< USBH_T::HcCommandStatus: SOC Mask         */
+
+#define USBH_HcInterruptStatus_SO_Pos    (0)                                               /*!< USBH_T::HcInterruptStatus: SO Position    */
+#define USBH_HcInterruptStatus_SO_Msk    (0x1ul << USBH_HcInterruptStatus_SO_Pos)          /*!< USBH_T::HcInterruptStatus: SO Mask        */
+
+#define USBH_HcInterruptStatus_WDH_Pos   (1)                                               /*!< USBH_T::HcInterruptStatus: WDH Position   */
+#define USBH_HcInterruptStatus_WDH_Msk   (0x1ul << USBH_HcInterruptStatus_WDH_Pos)         /*!< USBH_T::HcInterruptStatus: WDH Mask       */
+
+#define USBH_HcInterruptStatus_SF_Pos    (2)                                               /*!< USBH_T::HcInterruptStatus: SF Position    */
+#define USBH_HcInterruptStatus_SF_Msk    (0x1ul << USBH_HcInterruptStatus_SF_Pos)          /*!< USBH_T::HcInterruptStatus: SF Mask        */
+
+#define USBH_HcInterruptStatus_RD_Pos    (3)                                               /*!< USBH_T::HcInterruptStatus: RD Position    */
+#define USBH_HcInterruptStatus_RD_Msk    (0x1ul << USBH_HcInterruptStatus_RD_Pos)          /*!< USBH_T::HcInterruptStatus: RD Mask        */
+
+#define USBH_HcInterruptStatus_FNO_Pos   (5)                                               /*!< USBH_T::HcInterruptStatus: FNO Position   */
+#define USBH_HcInterruptStatus_FNO_Msk   (0x1ul << USBH_HcInterruptStatus_FNO_Pos)         /*!< USBH_T::HcInterruptStatus: FNO Mask       */
+
+#define USBH_HcInterruptStatus_RHSC_Pos  (6)                                               /*!< USBH_T::HcInterruptStatus: RHSC Position  */
+#define USBH_HcInterruptStatus_RHSC_Msk  (0x1ul << USBH_HcInterruptStatus_RHSC_Pos)        /*!< USBH_T::HcInterruptStatus: RHSC Mask      */
+
+#define USBH_HcInterruptEnable_SO_Pos    (0)                                               /*!< USBH_T::HcInterruptEnable: SO Position    */
+#define USBH_HcInterruptEnable_SO_Msk    (0x1ul << USBH_HcInterruptEnable_SO_Pos)          /*!< USBH_T::HcInterruptEnable: SO Mask        */
+
+#define USBH_HcInterruptEnable_WDH_Pos   (1)                                               /*!< USBH_T::HcInterruptEnable: WDH Position   */
+#define USBH_HcInterruptEnable_WDH_Msk   (0x1ul << USBH_HcInterruptEnable_WDH_Pos)         /*!< USBH_T::HcInterruptEnable: WDH Mask       */
+
+#define USBH_HcInterruptEnable_SF_Pos    (2)                                               /*!< USBH_T::HcInterruptEnable: SF Position    */
+#define USBH_HcInterruptEnable_SF_Msk    (0x1ul << USBH_HcInterruptEnable_SF_Pos)          /*!< USBH_T::HcInterruptEnable: SF Mask        */
+
+#define USBH_HcInterruptEnable_RD_Pos    (3)                                               /*!< USBH_T::HcInterruptEnable: RD Position    */
+#define USBH_HcInterruptEnable_RD_Msk    (0x1ul << USBH_HcInterruptEnable_RD_Pos)          /*!< USBH_T::HcInterruptEnable: RD Mask        */
+
+#define USBH_HcInterruptEnable_FNO_Pos   (5)                                               /*!< USBH_T::HcInterruptEnable: FNO Position   */
+#define USBH_HcInterruptEnable_FNO_Msk   (0x1ul << USBH_HcInterruptEnable_FNO_Pos)         /*!< USBH_T::HcInterruptEnable: FNO Mask       */
+
+#define USBH_HcInterruptEnable_RHSC_Pos  (6)                                               /*!< USBH_T::HcInterruptEnable: RHSC Position  */
+#define USBH_HcInterruptEnable_RHSC_Msk  (0x1ul << USBH_HcInterruptEnable_RHSC_Pos)        /*!< USBH_T::HcInterruptEnable: RHSC Mask      */
+
+#define USBH_HcInterruptEnable_MIE_Pos   (31)                                              /*!< USBH_T::HcInterruptEnable: MIE Position   */
+#define USBH_HcInterruptEnable_MIE_Msk   (0x1ul << USBH_HcInterruptEnable_MIE_Pos)         /*!< USBH_T::HcInterruptEnable: MIE Mask       */
+
+#define USBH_HcInterruptDisable_SO_Pos   (0)                                               /*!< USBH_T::HcInterruptDisable: SO Position   */
+#define USBH_HcInterruptDisable_SO_Msk   (0x1ul << USBH_HcInterruptDisable_SO_Pos)         /*!< USBH_T::HcInterruptDisable: SO Mask       */
+
+#define USBH_HcInterruptDisable_WDH_Pos  (1)                                               /*!< USBH_T::HcInterruptDisable: WDH Position  */
+#define USBH_HcInterruptDisable_WDH_Msk  (0x1ul << USBH_HcInterruptDisable_WDH_Pos)        /*!< USBH_T::HcInterruptDisable: WDH Mask      */
+
+#define USBH_HcInterruptDisable_SF_Pos   (2)                                               /*!< USBH_T::HcInterruptDisable: SF Position   */
+#define USBH_HcInterruptDisable_SF_Msk   (0x1ul << USBH_HcInterruptDisable_SF_Pos)         /*!< USBH_T::HcInterruptDisable: SF Mask       */
+
+#define USBH_HcInterruptDisable_RD_Pos   (3)                                               /*!< USBH_T::HcInterruptDisable: RD Position   */
+#define USBH_HcInterruptDisable_RD_Msk   (0x1ul << USBH_HcInterruptDisable_RD_Pos)         /*!< USBH_T::HcInterruptDisable: RD Mask       */
+
+#define USBH_HcInterruptDisable_FNO_Pos  (5)                                               /*!< USBH_T::HcInterruptDisable: FNO Position  */
+#define USBH_HcInterruptDisable_FNO_Msk  (0x1ul << USBH_HcInterruptDisable_FNO_Pos)        /*!< USBH_T::HcInterruptDisable: FNO Mask      */
+
+#define USBH_HcInterruptDisable_RHSC_Pos (6)                                               /*!< USBH_T::HcInterruptDisable: RHSC Position */
+#define USBH_HcInterruptDisable_RHSC_Msk (0x1ul << USBH_HcInterruptDisable_RHSC_Pos)       /*!< USBH_T::HcInterruptDisable: RHSC Mask     */
+
+#define USBH_HcInterruptDisable_MIE_Pos  (31)                                              /*!< USBH_T::HcInterruptDisable: MIE Position  */
+#define USBH_HcInterruptDisable_MIE_Msk  (0x1ul << USBH_HcInterruptDisable_MIE_Pos)        /*!< USBH_T::HcInterruptDisable: MIE Mask      */
+
+#define USBH_HcHCCA_HCCA_Pos             (8)                                               /*!< USBH_T::HcHCCA: HCCA Position             */
+#define USBH_HcHCCA_HCCA_Msk             (0xfffffful << USBH_HcHCCA_HCCA_Pos)              /*!< USBH_T::HcHCCA: HCCA Mask                 */
+
+#define USBH_HcPeriodCurrentED_PCED_Pos  (4)                                               /*!< USBH_T::HcPeriodCurrentED: PCED Position  */
+#define USBH_HcPeriodCurrentED_PCED_Msk  (0xffffffful << USBH_HcPeriodCurrentED_PCED_Pos)  /*!< USBH_T::HcPeriodCurrentED: PCED Mask      */
+
+#define USBH_HcControlHeadED_CHED_Pos    (4)                                               /*!< USBH_T::HcControlHeadED: CHED Position    */
+#define USBH_HcControlHeadED_CHED_Msk    (0xffffffful << USBH_HcControlHeadED_CHED_Pos)    /*!< USBH_T::HcControlHeadED: CHED Mask        */
+
+#define USBH_HcControlCurrentED_CCED_Pos (4)                                               /*!< USBH_T::HcControlCurrentED: CCED Position */
+#define USBH_HcControlCurrentED_CCED_Msk (0xffffffful << USBH_HcControlCurrentED_CCED_Pos) /*!< USBH_T::HcControlCurrentED: CCED Mask     */
+
+#define USBH_HcBulkHeadED_BHED_Pos       (4)                                               /*!< USBH_T::HcBulkHeadED: BHED Position       */
+#define USBH_HcBulkHeadED_BHED_Msk       (0xffffffful << USBH_HcBulkHeadED_BHED_Pos)       /*!< USBH_T::HcBulkHeadED: BHED Mask           */
+
+#define USBH_HcBulkCurrentED_BCED_Pos    (4)                                               /*!< USBH_T::HcBulkCurrentED: BCED Position    */
+#define USBH_HcBulkCurrentED_BCED_Msk    (0xffffffful << USBH_HcBulkCurrentED_BCED_Pos)    /*!< USBH_T::HcBulkCurrentED: BCED Mask        */
+
+#define USBH_HcDoneHead_DH_Pos           (4)                                               /*!< USBH_T::HcDoneHead: DH Position           */
+#define USBH_HcDoneHead_DH_Msk           (0xffffffful << USBH_HcDoneHead_DH_Pos)           /*!< USBH_T::HcDoneHead: DH Mask               */
+
+#define USBH_HcFmInterval_FI_Pos         (0)                                               /*!< USBH_T::HcFmInterval: FI Position         */
+#define USBH_HcFmInterval_FI_Msk         (0x3ffful << USBH_HcFmInterval_FI_Pos)            /*!< USBH_T::HcFmInterval: FI Mask             */
+
+#define USBH_HcFmInterval_FSMPS_Pos      (16)                                              /*!< USBH_T::HcFmInterval: FSMPS Position      */
+#define USBH_HcFmInterval_FSMPS_Msk      (0x7ffful << USBH_HcFmInterval_FSMPS_Pos)         /*!< USBH_T::HcFmInterval: FSMPS Mask          */
+
+#define USBH_HcFmInterval_FIT_Pos        (31)                                              /*!< USBH_T::HcFmInterval: FIT Position        */
+#define USBH_HcFmInterval_FIT_Msk        (0x1ul << USBH_HcFmInterval_FIT_Pos)              /*!< USBH_T::HcFmInterval: FIT Mask            */
+
+#define USBH_HcFmRemaining_FR_Pos        (0)                                               /*!< USBH_T::HcFmRemaining: FR Position        */
+#define USBH_HcFmRemaining_FR_Msk        (0x3ffful << USBH_HcFmRemaining_FR_Pos)           /*!< USBH_T::HcFmRemaining: FR Mask            */
+
+#define USBH_HcFmRemaining_FRT_Pos       (31)                                              /*!< USBH_T::HcFmRemaining: FRT Position       */
+#define USBH_HcFmRemaining_FRT_Msk       (0x1ul << USBH_HcFmRemaining_FRT_Pos)             /*!< USBH_T::HcFmRemaining: FRT Mask           */
+
+#define USBH_HcFmNumber_FN_Pos           (0)                                               /*!< USBH_T::HcFmNumber: FN Position           */
+#define USBH_HcFmNumber_FN_Msk           (0xfffful << USBH_HcFmNumber_FN_Pos)              /*!< USBH_T::HcFmNumber: FN Mask               */
+
+#define USBH_HcPeriodicStart_PS_Pos      (0)                                               /*!< USBH_T::HcPeriodicStart: PS Position      */
+#define USBH_HcPeriodicStart_PS_Msk      (0x3ffful << USBH_HcPeriodicStart_PS_Pos)         /*!< USBH_T::HcPeriodicStart: PS Mask          */
+
+#define USBH_HcLSThreshold_LST_Pos       (0)                                               /*!< USBH_T::HcLSThreshold: LST Position       */
+#define USBH_HcLSThreshold_LST_Msk       (0xffful << USBH_HcLSThreshold_LST_Pos)           /*!< USBH_T::HcLSThreshold: LST Mask           */
+
+#define USBH_HcRhDescriptorA_NDP_Pos     (0)                                               /*!< USBH_T::HcRhDescriptorA: NDP Position     */
+#define USBH_HcRhDescriptorA_NDP_Msk     (0xfful << USBH_HcRhDescriptorA_NDP_Pos)          /*!< USBH_T::HcRhDescriptorA: NDP Mask         */
+
+#define USBH_HcRhDescriptorA_PSM_Pos     (8)                                               /*!< USBH_T::HcRhDescriptorA: PSM Position     */
+#define USBH_HcRhDescriptorA_PSM_Msk     (0x1ul << USBH_HcRhDescriptorA_PSM_Pos)           /*!< USBH_T::HcRhDescriptorA: PSM Mask         */
+
+#define USBH_HcRhDescriptorA_OCPM_Pos    (11)                                              /*!< USBH_T::HcRhDescriptorA: OCPM Position    */
+#define USBH_HcRhDescriptorA_OCPM_Msk    (0x1ul << USBH_HcRhDescriptorA_OCPM_Pos)          /*!< USBH_T::HcRhDescriptorA: OCPM Mask        */
+
+#define USBH_HcRhDescriptorA_NOCP_Pos    (12)                                              /*!< USBH_T::HcRhDescriptorA: NOCP Position    */
+#define USBH_HcRhDescriptorA_NOCP_Msk    (0x1ul << USBH_HcRhDescriptorA_NOCP_Pos)          /*!< USBH_T::HcRhDescriptorA: NOCP Mask        */
+
+#define USBH_HcRhDescriptorB_PPCM_Pos    (16)                                              /*!< USBH_T::HcRhDescriptorB: PPCM Position    */
+#define USBH_HcRhDescriptorB_PPCM_Msk    (0xfffful << USBH_HcRhDescriptorB_PPCM_Pos)       /*!< USBH_T::HcRhDescriptorB: PPCM Mask        */
+
+#define USBH_HcRhStatus_LPS_Pos          (0)                                               /*!< USBH_T::HcRhStatus: LPS Position          */
+#define USBH_HcRhStatus_LPS_Msk          (0x1ul << USBH_HcRhStatus_LPS_Pos)                /*!< USBH_T::HcRhStatus: LPS Mask              */
+
+#define USBH_HcRhStatus_OCI_Pos          (1)                                               /*!< USBH_T::HcRhStatus: OCI Position          */
+#define USBH_HcRhStatus_OCI_Msk          (0x1ul << USBH_HcRhStatus_OCI_Pos)                /*!< USBH_T::HcRhStatus: OCI Mask              */
+
+#define USBH_HcRhStatus_DRWE_Pos         (15)                                              /*!< USBH_T::HcRhStatus: DRWE Position         */
+#define USBH_HcRhStatus_DRWE_Msk         (0x1ul << USBH_HcRhStatus_DRWE_Pos)               /*!< USBH_T::HcRhStatus: DRWE Mask             */
+
+#define USBH_HcRhStatus_LPSC_Pos         (16)                                              /*!< USBH_T::HcRhStatus: LPSC Position         */
+#define USBH_HcRhStatus_LPSC_Msk         (0x1ul << USBH_HcRhStatus_LPSC_Pos)               /*!< USBH_T::HcRhStatus: LPSC Mask             */
+
+#define USBH_HcRhStatus_OCIC_Pos         (17)                                              /*!< USBH_T::HcRhStatus: OCIC Position         */
+#define USBH_HcRhStatus_OCIC_Msk         (0x1ul << USBH_HcRhStatus_OCIC_Pos)               /*!< USBH_T::HcRhStatus: OCIC Mask             */
+
+#define USBH_HcRhStatus_CRWE_Pos         (31)                                              /*!< USBH_T::HcRhStatus: CRWE Position         */
+#define USBH_HcRhStatus_CRWE_Msk         (0x1ul << USBH_HcRhStatus_CRWE_Pos)               /*!< USBH_T::HcRhStatus: CRWE Mask             */
+
+#define USBH_HcRhPortStatus_CCS_Pos      (0)                                               /*!< USBH_T::HcRhPortStatus: CCS Position      */
+#define USBH_HcRhPortStatus_CCS_Msk      (0x1ul << USBH_HcRhPortStatus_CCS_Pos)             /*!< USBH_T::HcRhPortStatus: CCS Mask         */
+
+#define USBH_HcRhPortStatus_PES_Pos      (1)                                               /*!< USBH_T::HcRhPortStatus: PES Position      */
+#define USBH_HcRhPortStatus_PES_Msk      (0x1ul << USBH_HcRhPortStatus_PES_Pos)            /*!< USBH_T::HcRhPortStatus: PES Mask          */
+
+#define USBH_HcRhPortStatus_PSS_Pos      (2)                                               /*!< USBH_T::HcRhPortStatus: PSS Position      */
+#define USBH_HcRhPortStatus_PSS_Msk      (0x1ul << USBH_HcRhPortStatus_PSS_Pos)            /*!< USBH_T::HcRhPortStatus: PSS Mask          */
+
+#define USBH_HcRhPortStatus_POCI_Pos     (3)                                               /*!< USBH_T::HcRhPortStatus: POCI Position     */
+#define USBH_HcRhPortStatus_POCI_Msk     (0x1ul << USBH_HcRhPortStatus_POCI_Pos)           /*!< USBH_T::HcRhPortStatus: POCI Mask         */
+
+#define USBH_HcRhPortStatus_PRS_Pos      (4)                                               /*!< USBH_T::HcRhPortStatus: PRS Position      */
+#define USBH_HcRhPortStatus_PRS_Msk      (0x1ul << USBH_HcRhPortStatus_PRS_Pos)            /*!< USBH_T::HcRhPortStatus: PRS Mask          */
+
+#define USBH_HcRhPortStatus_PPS_Pos      (8)                                               /*!< USBH_T::HcRhPortStatus: PPS Position      */
+#define USBH_HcRhPortStatus_PPS_Msk      (0x1ul << USBH_HcRhPortStatus_PPS_Pos)            /*!< USBH_T::HcRhPortStatus: PPS Mask          */
+
+#define USBH_HcRhPortStatus_LSDA_Pos     (9)                                               /*!< USBH_T::HcRhPortStatus: LSDA Position     */
+#define USBH_HcRhPortStatus_LSDA_Msk     (0x1ul << USBH_HcRhPortStatus_LSDA_Pos)           /*!< USBH_T::HcRhPortStatus: LSDA Mask         */
+
+#define USBH_HcRhPortStatus_CSC_Pos      (16)                                              /*!< USBH_T::HcRhPortStatus: CSC Position      */
+#define USBH_HcRhPortStatus_CSC_Msk      (0x1ul << USBH_HcRhPortStatus_CSC_Pos)            /*!< USBH_T::HcRhPortStatus: CSC Mask          */
+
+#define USBH_HcRhPortStatus_PESC_Pos     (17)                                              /*!< USBH_T::HcRhPortStatus: PESC Position     */
+#define USBH_HcRhPortStatus_PESC_Msk     (0x1ul << USBH_HcRhPortStatus_PESC_Pos)           /*!< USBH_T::HcRhPortStatus: PESC Mask         */
+
+#define USBH_HcRhPortStatus_PSSC_Pos     (18)                                              /*!< USBH_T::HcRhPortStatus: PSSC Position     */
+#define USBH_HcRhPortStatus_PSSC_Msk     (0x1ul << USBH_HcRhPortStatus_PSSC_Pos)           /*!< USBH_T::HcRhPortStatus: PSSC Mask         */
+
+#define USBH_HcRhPortStatus_OCIC_Pos     (19)                                              /*!< USBH_T::HcRhPortStatus: OCIC Position     */
+#define USBH_HcRhPortStatus_OCIC_Msk     (0x1ul << USBH_HcRhPortStatus_OCIC_Pos)           /*!< USBH_T::HcRhPortStatus: OCIC Mask         */
+
+#define USBH_HcRhPortStatus_PRSC_Pos     (20)                                              /*!< USBH_T::HcRhPortStatus: PRSC Position     */
+#define USBH_HcRhPortStatus_PRSC_Msk     (0x1ul << USBH_HcRhPortStatus_PRSC_Pos)           /*!< USBH_T::HcRhPortStatus: PRSC Mask         */
+
+#define USBH_HcPhyControl_STBYEN_Pos     (27)                                              /*!< USBH_T::HcPhyControl: STBYEN Position     */
+#define USBH_HcPhyControl_STBYEN_Msk     (0x1ul << USBH_HcPhyControl_STBYEN_Pos)           /*!< USBH_T::HcPhyControl: STBYEN Mask         */
+
+#define USBH_HcMiscControl_ABORT_Pos     (1)                                               /*!< USBH_T::HcMiscControl: ABORT Position     */
+#define USBH_HcMiscControl_ABORT_Msk     (0x1ul << USBH_HcMiscControl_ABORT_Pos)           /*!< USBH_T::HcMiscControl: ABORT Mask         */
+
+#define USBH_HcMiscControl_OCAL_Pos      (3)                                               /*!< USBH_T::HcMiscControl: OCAL Position      */
+#define USBH_HcMiscControl_OCAL_Msk      (0x1ul << USBH_HcMiscControl_OCAL_Pos)            /*!< USBH_T::HcMiscControl: OCAL Mask          */
+
+#define USBH_HcMiscControl_DPRT1_Pos     (16)                                              /*!< USBH_T::HcMiscControl: DPRT1 Position     */
+#define USBH_HcMiscControl_DPRT1_Msk     (0x1ul << USBH_HcMiscControl_DPRT1_Pos)           /*!< USBH_T::HcMiscControl: DPRT1 Mask         */
+
+/**@}*/ /* USBH_CONST */
+/**@}*/ /* end of USBH register group */
+
+
+
 /*---------------------- Watch Dog Timer Controller -------------------------*/
 /**
     @addtogroup WDT Watch Dog Timer Controller(WDT)
@@ -12413,6 +13776,7 @@ typedef struct
 #define GPIO_DBCTL_BASE      (AHBPERIPH_BASE + 0x04440)
 #define GPIO_PIN_DATA_BASE   (AHBPERIPH_BASE + 0x04800)
 #define PDMA_BASE            (AHBPERIPH_BASE + 0x08000)
+#define USBH_BASE            (AHBPERIPH_BASE + 0x09000)
 #define FMC_BASE             (AHBPERIPH_BASE + 0x0C000)
 #define EBI_BASE             (AHBPERIPH_BASE + 0x10000)
 #define CRC_BASE             (AHBPERIPH_BASE + 0x31000)
@@ -12427,6 +13791,7 @@ typedef struct
 #define UART2_BASE           (APBPERIPH_BASE + 0x32000)
 #define I2C0_BASE            (APBPERIPH_BASE + 0x40000)
 #define SC0_BASE             (APBPERIPH_BASE + 0x50000)
+#define USBD_BASE            (APBPERIPH_BASE + 0x80000)
 
 /*!< APB1 peripherals */
 #define RTC_BASE             (APBPERIPH_BASE + 0x01000)
@@ -12459,6 +13824,7 @@ typedef struct
 #define PF                   ((GPIO_T *)  GPIOF_BASE)
 #define GPIO                 ((GPIO_DBCTL_T *) GPIO_DBCTL_BASE)
 #define PDMA                 ((PDMA_T *)  PDMA_BASE)
+#define USBH                 ((USBH_T *)  USBH_BASE)
 #define FMC                  ((FMC_T *)   FMC_BASE)
 #define EBI                  ((EBI_T *)   EBI_BASE)
 #define CRC                  ((CRC_T *)   CRC_BASE)
@@ -12468,6 +13834,7 @@ typedef struct
 #define RTC                  ((RTC_T *)   RTC_BASE)
 #define EADC                  ((EADC_T *)   EADC0_BASE)
 
+#define USBD                 ((USBD_T *)  USBD_BASE)
 #define TIMER0               ((TIMER_T *) TMR01_BASE)
 #define TIMER1               ((TIMER_T *) (TMR01_BASE + 0x20))
 #define TIMER2               ((TIMER_T *) TMR23_BASE)
@@ -12555,6 +13922,7 @@ typedef struct
 #include "sc.h"
 #include "scuart.h"
 #include "eadc.h"
+#include "usbd.h"
 #include "fmc.h"
 #include "uart.h"
 #include "pwm.h"

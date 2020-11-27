@@ -32,6 +32,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 #define PDMA_RST    ((0x0<<24) | SYS_IPRST0_PDMARST_Pos )   /*!< Reset PDMA */
 #define EBI_RST     ((0x0<<24) | SYS_IPRST0_EBIRST_Pos )    /*!< Reset EBI */
+#define USBH_RST    ((0x0<<24) | SYS_IPRST0_USBHRST_Pos )   /*!< Reset USBH */
 #define CRC_RST     ((0x0<<24) | SYS_IPRST0_CRCRST_Pos )    /*!< Reset CRC */
 
 #define GPIO_RST    ((0x4<<24) | SYS_IPRST1_GPIORST_Pos )   /*!< Reset GPIO */
@@ -47,6 +48,7 @@ extern "C"
 #define UART1_RST   ((0x4<<24) | SYS_IPRST1_UART1RST_Pos )  /*!< Reset UART1 */
 #define UART2_RST   ((0x4<<24) | SYS_IPRST1_UART2RST_Pos )  /*!< Reset UART2 */
 #define UART3_RST   ((0x4<<24) | SYS_IPRST1_UART3RST_Pos )  /*!< Reset UART3 */
+#define USBD_RST    ((0x4<<24) | SYS_IPRST1_USBDRST_Pos )   /*!< Reset USBD */
 #define EADC_RST    ((0x4<<24) | SYS_IPRST1_EADCRST_Pos )   /*!< Reset EADC */
 
 #define SC0_RST     ((0x8<<24) | SYS_IPRST2_SC0RST_Pos )    /*!< Reset SC0 */
@@ -105,6 +107,7 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
 
 //PA2 MFP
 #define SYS_GPA_MFPL_PA2MFP_GPIO               (0ul << SYS_GPA_MFPL_PA2MFP_Pos)        /*!< GPA_MFPL PA2 setting for GPIO*/
+#define SYS_GPA_MFPL_PA2MFP_USB_VBUS_EN        (1ul << SYS_GPA_MFPL_PA2MFP_Pos)        /*!< GPA_MFPL PA2 setting for USB_VBUS_EN*/
 #define SYS_GPA_MFPL_PA2MFP_UART0_TXD          (2ul << SYS_GPA_MFPL_PA2MFP_Pos)        /*!< GPA_MFPL PA2 setting for UART0_TXD*/
 #define SYS_GPA_MFPL_PA2MFP_UART0_nCTS         (3ul << SYS_GPA_MFPL_PA2MFP_Pos)        /*!< GPA_MFPL PA2 setting for UART0_nCTS*/
 #define SYS_GPA_MFPL_PA2MFP_I2C0_SDA           (4ul << SYS_GPA_MFPL_PA2MFP_Pos)        /*!< GPA_MFPL PA2 setting for I2C0_SDA*/
@@ -114,6 +117,7 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
 
 //PA3 MFP
 #define SYS_GPA_MFPL_PA3MFP_GPIO               (0ul << SYS_GPA_MFPL_PA3MFP_Pos)        /*!< GPA_MFPL PA3 setting for GPIO*/
+#define SYS_GPA_MFPL_PA3MFP_USB_VBUS_ST       (1ul << SYS_GPA_MFPL_PA3MFP_Pos)        /*!< GPA_MFPL PA3 setting for USB_VBUS_ST*/
 #define SYS_GPA_MFPL_PA3MFP_UART0_RXD          (2ul << SYS_GPA_MFPL_PA3MFP_Pos)        /*!< GPA_MFPL PA3 setting for UART0_RXD*/
 #define SYS_GPA_MFPL_PA3MFP_UART0_nRTS         (3ul << SYS_GPA_MFPL_PA3MFP_Pos)        /*!< GPA_MFPL PA3 setting for UART0_nRTS*/
 #define SYS_GPA_MFPL_PA3MFP_I2C0_SCL           (4ul << SYS_GPA_MFPL_PA3MFP_Pos)        /*!< GPA_MFPL PA3 setting for I2C0_SCL*/
@@ -241,6 +245,7 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
 #define SYS_GPC_MFPL_PC3MFP_GPIO               (0ul << SYS_GPC_MFPL_PC3MFP_Pos)        /*!< GPC_MFPL PC3 setting for GPIO*/
 #define SYS_GPC_MFPL_PC3MFP_SPI1_MOSI          (2ul << SYS_GPC_MFPL_PC3MFP_Pos)        /*!< GPC_MFPL PC3 setting for SPI1_MOSI*/
 #define SYS_GPC_MFPL_PC3MFP_UART2_RXD          (3ul << SYS_GPC_MFPL_PC3MFP_Pos)        /*!< GPC_MFPL PC3 setting for UART2_RXD*/
+#define SYS_GPC_MFPL_PC3MFP_USB_VBUS_ST        (4ul << SYS_GPC_MFPL_PC3MFP_Pos)        /*!< GPC_MFPL PC3 setting for USB_VBUS_ST*/
 #define SYS_GPC_MFPL_PC3MFP_PWM0_CH3           (6ul << SYS_GPC_MFPL_PC3MFP_Pos)        /*!< GPC_MFPL PC3 setting for PWM0_CH3*/
 #define SYS_GPC_MFPL_PC3MFP_EBI_AD11           (7ul << SYS_GPC_MFPL_PC3MFP_Pos)        /*!< GPC_MFPL PC3 setting for EBI_AD11*/
 
@@ -248,6 +253,7 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
 #define SYS_GPC_MFPL_PC4MFP_GPIO               (0ul << SYS_GPC_MFPL_PC4MFP_Pos)        /*!< GPC_MFPL PC4 setting for GPIO*/
 #define SYS_GPC_MFPL_PC4MFP_SPI1_MISO          (2ul << SYS_GPC_MFPL_PC4MFP_Pos)        /*!< GPC_MFPL PC4 setting for SPI1_MISO*/
 #define SYS_GPC_MFPL_PC4MFP_I2C1_SCL           (3ul << SYS_GPC_MFPL_PC4MFP_Pos)        /*!< GPC_MFPL PC4 setting for I2C1_SCL*/
+#define SYS_GPC_MFPL_PC4MFP_USB_VBUS_EN        (4ul << SYS_GPC_MFPL_PC4MFP_Pos)        /*!< GPC_MFPL PC4 setting for USB_VBUS_EN*/
 #define SYS_GPC_MFPL_PC4MFP_PWM0_CH4           (6ul << SYS_GPC_MFPL_PC4MFP_Pos)        /*!< GPC_MFPL PC4 setting for PWM0_CH4*/
 #define SYS_GPC_MFPL_PC4MFP_EBI_AD12           (7ul << SYS_GPC_MFPL_PC4MFP_Pos)        /*!< GPC_MFPL PC4 setting for EBI_AD12*/
 

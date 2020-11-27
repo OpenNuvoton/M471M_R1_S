@@ -133,6 +133,7 @@ void SYS_ResetCPU(void)
   *             - \ref UART1_RST
   *             - \ref UART2_RST
   *             - \ref UART3_RST
+  *             - \ref USBD_RST
   *             - \ref EADC_RST
   *             - \ref SC0_RST
   *             - \ref PWM0_RST
