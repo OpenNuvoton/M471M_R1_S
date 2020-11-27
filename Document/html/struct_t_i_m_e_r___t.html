@@ -71,7 +71,7 @@ Data Fields</h2></td></tr>
 <div class="textblock"><pre class="fragment">@addtogroup TMR Timer Controller(TMR)
 Memory Mapped Structure for TMR Controller
 </pre> 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11002">11002</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11084">11084</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a81d73d586c19f48b249c87babd4ae4cf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a81d73d586c19f48b249c87babd4ae4cf">&#9670;&nbsp;</a></span>CAP</h2>
@@ -94,7 +94,7 @@ Memory Mapped Structure for TMR Controller
 <td class="markdownTableBodyCenter"></td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyLeft">When CAPEN (TIMERx_EXTCTL[3]) bit is set, CAPFUNCS (TIMERx_EXTCTL[4]) bit is 0, and a transition on Tx_EXT pin matched the CAPEDGE (TIMERx_EXTCTL[2:1]) setting, CAPIF (TIMERx_EINTSTS[0]) will set to 1 and the current timer counter value CNT (TIMERx_CNT[23:0]) will be auto-loaded into this CAPDAT field.   </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11174">11174</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11256">11256</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 
 </div>
 </div>
@@ -129,7 +129,7 @@ Memory Mapped Structure for TMR Controller
 <td class="markdownTableBodyCenter"></td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyLeft">But if timer is operating at other modes, the 24-bit up counter will restart counting from 0 and using newest CMPDAT value to be the timer compared value while user writes a new value into CMPDAT field.   </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11171">11171</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11253">11253</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 
 </div>
 </div>
@@ -158,7 +158,7 @@ Memory Mapped Structure for TMR Controller
 <td class="markdownTableBodyCenter"></td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyLeft">If EXTCNTEN (TIMERx_CTL[24] ) is 1, user can read CNT value for getting current 24- bit event input counter value.   </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11173">11173</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11255">11255</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 
 </div>
 </div>
@@ -305,7 +305,7 @@ Memory Mapped Structure for TMR Controller
 <td class="markdownTableBodyCenter"></td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyLeft">TIMER counter will keep going no matter CPU is held by ICE or not.   </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11170">11170</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11252">11252</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 
 </div>
 </div>
@@ -342,7 +342,7 @@ Memory Mapped Structure for TMR Controller
 <td class="markdownTableBodyCenter"></td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyLeft">If the above condition occurred, the Timer will keep register TIMERx_CAP unchanged and drop the new capture value.   </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11176">11176</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11258">11258</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 
 </div>
 </div>
@@ -427,7 +427,7 @@ Memory Mapped Structure for TMR Controller
 <td class="markdownTableBodyCenter"></td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyLeft">Note: If this bit is enabled, the edge detection of Tx_CNT pin is detected with de-bounce circuit.   </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11175">11175</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11257">11257</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 
 </div>
 </div>
@@ -468,7 +468,7 @@ Memory Mapped Structure for TMR Controller
 <td class="markdownTableBodyCenter"></td><td class="markdownTableBodyCenter"></td><td class="markdownTableBodyLeft">Note: This bit is cleared by writing 1 to it.   </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11172">11172</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_m471_m___r1___s_8h_source.html#l11254">11254</a> of file <a class="el" href="_m471_m___r1___s_8h_source.html">M471M_R1_S.h</a>.</p>
 
 </div>
 </div>
@@ -478,7 +478,7 @@ Memory Mapped Structure for TMR Controller
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jul 6 2020 17:24:15 for M471M/R1/S BSP by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 27 2020 16:45:36 for M471M/R1/S BSP by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.15
 </small></address>
