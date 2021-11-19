@@ -118,16 +118,6 @@ void UART_DisableInt(UART_T*  uart, uint32_t u32InterruptFlag)
 {
     /* Disable UART specified interrupt */
     UART_DISABLE_INT(uart, u32InterruptFlag);
-
-    /* Disable NVIC UART IRQ */
-    if(uart == UART0)
-        NVIC_DisableIRQ(UART0_IRQn);
-    else if(uart == UART1)
-        NVIC_DisableIRQ(UART1_IRQn);
-    else if(uart == UART2)
-        NVIC_DisableIRQ(UART2_IRQn);
-    else
-        NVIC_DisableIRQ(UART3_IRQn);
 }
 
 
@@ -176,16 +166,6 @@ void UART_EnableInt(UART_T*  uart, uint32_t u32InterruptFlag)
 
     /* Enable UART specified interrupt */
     UART_ENABLE_INT(uart, u32InterruptFlag);
-
-    /* Enable NVIC UART IRQ */
-    if(uart == UART0)
-        NVIC_EnableIRQ(UART0_IRQn);
-    else if(uart == UART1)
-        NVIC_EnableIRQ(UART1_IRQn);
-    else if(uart == UART2)
-        NVIC_EnableIRQ(UART2_IRQn);
-    else
-        NVIC_EnableIRQ(UART3_IRQn);
 
 }
 
@@ -446,17 +426,31 @@ void UART_SelectRS485Mode(UART_T* uart, uint32_t u32Mode, uint32_t u32Addr)
 uint32_t UART_Write(UART_T* uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
     uint32_t  u32Count, u32delayno;
+    uint32_t  u32Exit = 0ul;
 
-    for(u32Count = 0; u32Count != u32WriteBytes; u32Count++)
+    for (u32Count = 0ul; u32Count != u32WriteBytes; u32Count++)
     {
-        u32delayno = 0;
-        while((uart->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0)   /* Wait Tx empty and Time-out manner */
+        u32delayno = 0ul;
+
+        while (uart->FIFOSTS & UART_FIFOSTS_TXFULL_Msk)   /* Check Tx Full */
         {
             u32delayno++;
-            if(u32delayno >= 0x40000000)
-                return FALSE;
+
+            if (u32delayno >= 0x40000000ul)
+            {
+                u32Exit = 1ul;
+                break;
+            }
         }
-        uart->DAT = pu8TxBuf[u32Count];    /* Send UART Data from buffer */
+
+        if (u32Exit == 1ul)
+        {
+            break;
+        }
+        else
+        {
+            uart->DAT = pu8TxBuf[u32Count];    /* Send UART Data from buffer */
+        }
     }
 
     return u32Count;

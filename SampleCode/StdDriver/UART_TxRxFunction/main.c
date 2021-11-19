@@ -211,10 +211,12 @@ void UART_FunctionTest()
 
     /* Enable UART RDA/THRE/Time-out interrupt */
     UART_EnableInt(UART0, (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+    NVIC_EnableIRQ(UART0_IRQn);
     while(g_bWait);
 
     /* Disable UART RDA/THRE/Time-out interrupt */
     UART_DisableInt(UART0, (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+    NVIC_DisableIRQ(UART0_IRQn);
 
     /* Reset RX FIFO Trigger Level */
     UART0->FIFO &= ~UART_FIFO_RFITL_Msk;

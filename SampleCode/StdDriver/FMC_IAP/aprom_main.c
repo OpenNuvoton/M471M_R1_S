@@ -13,7 +13,7 @@
 
 typedef void (FUNC_PTR)(void);
 
-extern uint32_t  loaderImage1Base, loaderImage1Limit;
+extern uint32_t  loaderImage1Base;
 
 
 void SYS_Init(void)
@@ -94,7 +94,7 @@ static int SetIAPBoot(void)
     return 0;
 }
 
-static int  LoadImage(uint32_t u32ImageBase, uint32_t u32ImageLimit, uint32_t u32FlashAddr, uint32_t u32MaxSize)
+static int  LoadImage(uint32_t u32ImageBase, uint32_t u32FlashAddr, uint32_t u32MaxSize)
 {
     uint32_t   i, j, u32Data, u32ImageSize, *pu32Loader;
 
@@ -200,8 +200,7 @@ int main()
         {
         case '0':
             FMC_EnableLDUpdate();
-            if(LoadImage((uint32_t)&loaderImage1Base, (uint32_t)&loaderImage1Limit,
-                         FMC_LDROM_BASE, FMC_LDROM_SIZE) != 0)
+            if (LoadImage((uint32_t)&loaderImage1Base, FMC_LDROM_BASE, FMC_LDROM_SIZE) != 0)
             {
                 printf("Load image to LDROM failed!\n");
                 goto lexit;

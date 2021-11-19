@@ -593,6 +593,10 @@ void SYS_Init(void)
     /* Set I2C1 multi-function pins */
     SYS->GPE_MFPH |= SYS_GPE_MFPH_PE8MFP_I2C1_SCL | SYS_GPE_MFPH_PE9MFP_I2C1_SDA;
     SYS->GPC_MFPL = SYS_GPC_MFPL_PC6MFP_I2C1_SMBAL | SYS_GPC_MFPL_PC7MFP_I2C1_SMBSUS;
+
+    /* I2C pin enable schmitt trigger */
+    PA->SMTEN |= GPIO_SMTEN_SMTEN2_Msk | GPIO_SMTEN_SMTEN3_Msk;
+    PE->SMTEN |= GPIO_SMTEN_SMTEN8_Msk | GPIO_SMTEN_SMTEN9_Msk;
 }
 
 void UART0_Init(void)

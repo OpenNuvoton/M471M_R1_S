@@ -1,5 +1,6 @@
 /**************************************************************************//**
  * @file     NuMicro.h
+ * @version  V1.00
  * @brief    NuMicro peripheral access layer header file.
  *
  * SPDX-License-Identifier: Apache-2.0
