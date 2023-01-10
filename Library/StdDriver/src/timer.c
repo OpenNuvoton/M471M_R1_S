@@ -89,56 +89,87 @@ void TIMER_Close(TIMER_T *timer)
   * @note       This API overwrites the register setting of the timer used to count the delay time.
   * @note       This API use polling mode. So there is no need to enable interrupt for the timer module used to generate delay.
   */
-void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
+int32_t TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
 {
     uint32_t u32Clk = TIMER_GetModuleClock(timer);
-    uint32_t u32Prescale = 0, delay = (SystemCoreClock / u32Clk) + 1;
-    uint32_t u32Cmpr, u32NsecPerTick;
+    uint32_t u32Prescale = 0UL, u32Delay;
+    uint32_t u32Cmpr, u32Cntr, u32NsecPerTick, i = 0UL;
 
-    // Clear current timer configuration/
-    timer->CTL = 0;
-    timer->EXTCTL = 0;
+    /* Clear current timer configuration */
+    timer->CTL = 0UL;
+    timer->EXTCTL = 0UL;
 
-    if(u32Clk <= 1000000)    // min delay is 1000 us if timer clock source is <= 1 MHz
+    if(u32Clk <= 1000000UL)   /* min delay is 1000 us if timer clock source is <= 1 MHz */
     {
-        if(u32Usec < 1000)
-            u32Usec = 1000;
-        if(u32Usec > 1000000)
-            u32Usec = 1000000;
+        if(u32Usec < 1000UL)
+        {
+            u32Usec = 1000UL;
+        }
+        if(u32Usec > 1000000UL)
+        {
+            u32Usec = 1000000UL;
+        }
     }
     else
     {
-        if(u32Usec < 100)
-            u32Usec = 100;
-        if(u32Usec > 1000000)
-            u32Usec = 1000000;
+        if(u32Usec < 100UL)
+        {
+            u32Usec = 100UL;
+        }
+        if(u32Usec > 1000000UL)
+        {
+            u32Usec = 1000000UL;
+        }
     }
 
-    if(u32Clk <= 1000000)
+    if(u32Clk <= 1000000UL)
     {
-        u32Prescale = 0;
-        u32NsecPerTick = 1000000000 / u32Clk;
-        u32Cmpr = (u32Usec * 1000) / u32NsecPerTick;
+        u32Prescale = 0UL;
+        u32NsecPerTick = 1000000000UL / u32Clk;
+        u32Cmpr = (u32Usec * 1000UL) / u32NsecPerTick;
     }
     else
     {
-        u32Cmpr = u32Usec * (u32Clk / 1000000);
+        u32Cmpr = u32Usec * (u32Clk / 1000000UL);
         u32Prescale = (u32Cmpr >> 24);  /* for 24 bits CMPDAT */
-        if (u32Prescale > 0)
-            u32Cmpr = u32Cmpr / (u32Prescale + 1);
+        if (u32Prescale > 0UL)
+            u32Cmpr = u32Cmpr / (u32Prescale + 1UL);
     }
 
     timer->CMP = u32Cmpr;
     timer->CTL = TIMER_CTL_CNTEN_Msk | TIMER_ONESHOT_MODE | u32Prescale;
 
-    // When system clock is faster than timer clock, it is possible timer active bit cannot set in time while we check it.
-    // And the while loop below return immediately, so put a tiny delay here allowing timer start counting and raise active flag.
-    for(; delay > 0; delay--)
+    /* When system clock is faster than timer clock, it is possible timer active bit cannot set
+       in time while we check it. And the while loop below return immediately, so put a tiny
+       delay larger than 1 ECLK here allowing timer start counting and raise active flag. */
+    for(u32Delay = (SystemCoreClock / u32Clk) + 1UL; u32Delay > 0UL; u32Delay--)
     {
         __NOP();
     }
 
-    while(timer->CTL & TIMER_CTL_ACTSTS_Msk);
+    /* Add a bail out counter here in case timer clock source is disabled accidentally.
+       Prescale counter reset every ECLK * (prescale value + 1).
+       The u32Delay here is to make sure timer counter value changed when prescale counter reset */
+    u32Delay = (SystemCoreClock / TIMER_GetModuleClock(timer)) * (u32Prescale + 1);
+    u32Cntr = timer->CNT;
+    i = 0;
+    while(timer->CTL & TIMER_CTL_ACTSTS_Msk)
+    {
+        /* Bailed out if timer stop counting e.g. Some interrupt handler close timer clock source. */
+        if(u32Cntr == timer->CNT)
+        {
+            if(i++ > u32Delay)
+            {
+                return TIMER_TIMEOUT_ERR;
+            }
+        }
+        else
+        {
+            i = 0;
+            u32Cntr = timer->CNT;
+        }
+    }
+    return 0;
 }
 
 /**

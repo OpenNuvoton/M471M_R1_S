@@ -357,15 +357,20 @@ extern "C"
  *
  *    @param[in]    i2c        Specify I2C port
  *
- *    @return       None
+ *    @retval       0: set stop success
+ *    @retval      -1: set stop fail
  *
  *    @details      Set the I2C bus STOP condition in I2C_CTL register.
  */
-static __INLINE void I2C_STOP(I2C_T *i2c)
+static __INLINE int32_t I2C_STOP(I2C_T *i2c)
 {
-
+    uint32_t u32TimeOutCount = SystemCoreClock; // 1 second timeout
     (i2c)->CTL |= (I2C_CTL_SI_Msk | I2C_CTL_STO_Msk);
-    while(i2c->CTL & I2C_CTL_STO_Msk);
+    while((i2c->CTL & I2C_CTL_STO_Msk) && (u32TimeOutCount-- > 0));
+    if(u32TimeOutCount == 0)
+        return -1;
+    else
+        return 0;
 }
 
 void I2C_ClearTimeoutFlag(I2C_T *i2c);

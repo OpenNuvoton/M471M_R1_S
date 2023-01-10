@@ -358,21 +358,27 @@ __STATIC_INLINE uint32_t CLK_GetPLLClockFreq(void)
   * @param      us  Delay time. The Max value is 2^24 / CPU Clock(MHz). Ex:
   *                             72MHz => 233016us, 50MHz => 335544us,
                                 48MHz => 349525us, 28MHz => 699050us ...
-  * @return     None
+  * @retval     0  clock is not stable
+  * @retval     1  clock is stable
   * @details    Use the SysTick to generate the delay time and the unit is in us.
   *             The SysTick clock source is from HCLK, i.e the same as system core clock.
   */
-__STATIC_INLINE void CLK_SysTickDelay(uint32_t us)
+__STATIC_INLINE uint32_t CLK_SysTickDelay(uint32_t us)
 {
+    uint32_t u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
     SysTick->LOAD = us * CyclesPerUs;
     SysTick->VAL  = (0x00);
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
 
     /* Waiting for down-count to zero */
-    while((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0);
+    while(((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0) && (u32TimeOutCnt-- > 0))
 
     /* Disable SysTick counter */
     SysTick->CTRL = 0;
+    if(u32TimeOutCnt == 0)
+        return 0;
+    else
+        return 1;
 }
 
 

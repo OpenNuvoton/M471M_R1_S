@@ -220,21 +220,28 @@ typedef struct
   *
   * @param      None
   *
-  * @return     None
+  * @retval     0  RTC is unaccessable
+  * @retval     1  RTC is accessable
   *
   * @details    This function is used to enable the maximum RTC read/write accessible time.
   */
-static __INLINE void RTC_WaitAccessEnable(void)
+static __INLINE int32_t RTC_WaitAccessEnable(void)
 {
+    int32_t i32TimeoutCnt = SystemCoreClock; // total 1 second timeout
     /* To wait RWENF bit is cleared and enable RWENF bit (Access Enable bit) again */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
+    while(((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk) && (i32TimeoutCnt-- > 0));
     RTC->RWEN = RTC_WRITE_KEY;
 
     /* To wait RWENF bit is set and user can access the protected-register of RTC from now on */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0);
+    while(((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0) && (i32TimeoutCnt-- > 0));
+
+    if(i32TimeoutCnt == 0)
+        return 0;
+    else
+        return 1;
 }
 
-void RTC_Open(S_RTC_TIME_DATA_T *sPt);
+int32_t RTC_Open(S_RTC_TIME_DATA_T *sPt);
 void RTC_Close(void);
 void RTC_32KCalibration(int32_t i32FrequencyX100);
 void RTC_GetDateAndTime(S_RTC_TIME_DATA_T *sPt);

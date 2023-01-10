@@ -54,7 +54,8 @@ static volatile uint32_t g_u32hiHour, g_u32loHour, g_u32hiMin, g_u32loMin, g_u32
   *                     u32TimeScale: [RTC_CLOCK_12 / RTC_CLOCK_24]                                 \n
   *                     u8AmPm: [RTC_AM / RTC_PM]                                                   \n
   *
-  * @return     None
+  * @retval      0: SUCCESS
+  * @retval     -1: Initialize RTC module fail
   *
   * @details    This function is used to: \n
   *                 1. Write initial key to let RTC start count.  \n
@@ -62,24 +63,36 @@ static volatile uint32_t g_u32hiHour, g_u32loHour, g_u32hiMin, g_u32loMin, g_u32
   *                 3. User has to make sure that parameters of RTC date/time are reasonable. \n
   * @note       Null pointer for using default starting date/time.
   */
-void RTC_Open(S_RTC_TIME_DATA_T *sPt)
+int32_t RTC_Open(S_RTC_TIME_DATA_T *sPt)
 {
+    uint32_t u32TimeOutCount = SystemCoreClock; /* 1 second timeout */
+
     RTC->INIT = RTC_INIT_KEY;
 
     if(RTC->INIT != RTC_INIT_ACTIVE_Msk)
     {
         RTC->INIT = RTC_INIT_KEY;
-        while(RTC->INIT != RTC_INIT_ACTIVE_Msk);
+        while (RTC->INIT != RTC_INIT_ACTIVE_Msk)
+        {
+            if(u32TimeOutCount == 0) return -1;
+            u32TimeOutCount--;					
+        }
     }
 
-    if(sPt == 0)
-        return ;
-
-    /* Set RTC date and time */
-    RTC_SetDateAndTime(sPt);
-
-    /* Waiting for RTC settings stable */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
+    if (sPt == NULL)
+    {
+        /* No RTC date/time data */
+    }
+    else
+    {
+        /* Set RTC date and time */
+        RTC_SetDateAndTime(sPt);
+        /* Waiting for RTC settings stable */
+        while(((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk) && (u32TimeOutCount-- > 0));
+        if(u32TimeOutCount == 0)
+            return -1;
+    }
+    return 0;
 }
 
 /**
