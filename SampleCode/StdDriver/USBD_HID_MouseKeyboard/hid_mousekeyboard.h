@@ -2,6 +2,7 @@
  * @file     hid_mousekeyboard.h
  * @brief    USB HID mouse and keyboard header file
  *
+ * SPDX-License-Identifier: Apache-2.0
  * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_HID_H__
@@ -28,6 +29,14 @@
 #define HID_RPT_TYPE_INPUT      0x01
 #define HID_RPT_TYPE_OUTPUT     0x02
 #define HID_RPT_TYPE_FEATURE    0x03
+
+#define HID_LED_NumLock         0x01
+#define HID_LED_CapsLock        0x02
+#define HID_LED_ScrollLock      0x04
+#define HID_LED_Compose         0x08
+#define HID_LED_Kana            0x10
+#define HID_LED_Constatnt       0xE0
+#define HID_LED_ALL             0xFF
 
 /*-------------------------------------------------------------*/
 /* Define EP maximum packet size */

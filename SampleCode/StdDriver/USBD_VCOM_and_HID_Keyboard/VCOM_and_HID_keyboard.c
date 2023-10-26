@@ -2,6 +2,7 @@
  * @file     VCOM_and_HID_keyboard.c
  * @brief    USBD driver sample file
  *
+ * SPDX-License-Identifier: Apache-2.0
  * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
@@ -13,6 +14,9 @@
 
 uint32_t volatile g_u32OutToggle = 0;
 uint8_t volatile g_u8EP5Ready;
+
+uint8_t Led_Status[8];
+uint32_t LED_SATUS = 0;
 
 void USBD_IRQHandler(void)
 {
@@ -299,7 +303,8 @@ void HID_ClassRequest(void)
             {
                 /* Request Type = Output */
                 USBD_SET_DATA1(EP1);
-                USBD_SET_PAYLOAD_LEN(EP1, buf[6]);
+                /* Data stage */
+                USBD_PrepareCtrlOut(Led_Status, buf[6]);
 
                 /* Trigger for HID Int in */
                 USBD_SET_PAYLOAD_LEN(EP5, 0);
@@ -362,11 +367,11 @@ void VCOM_LineCoding(uint8_t port)
         comTtail = 0;
 
         // Reset hardware fifo
-        UART0->FIFO = 0x6;
+        UART1->FIFO = 0x6;
 
         // Set baudrate, clock source and clock divider
-        UART0->BAUD = 0x30000000 + ((u32SysTmp + gLineCoding.u32DTERate / 2) / gLineCoding.u32DTERate - 2);
-        CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UARTSEL_PLL, CLK_CLKDIV0_UART(u32Div + 1));
+        UART1->BAUD = 0x30000000 + ((u32SysTmp + gLineCoding.u32DTERate / 2) / gLineCoding.u32DTERate - 2);
+        CLK_SetModuleClock(UART1_MODULE, CLK_CLKSEL1_UARTSEL_PLL, CLK_CLKDIV0_UART(u32Div + 1));
 
 
         // Set parity
@@ -402,7 +407,7 @@ void VCOM_LineCoding(uint8_t port)
         if(gLineCoding.u8CharFormat > 0)
             u32Reg |= 0x4; // 2 or 1.5 bits
 
-        UART0->LINE = u32Reg;
+        UART1->LINE = u32Reg;
     }
 }
 
@@ -440,5 +445,35 @@ void HID_UpdateKbData(void)
             USBD_SET_PAYLOAD_LEN(EP5, 8);
         }
     }
-}
+    if(Led_Status[0] != LED_SATUS)
+    {
+        if((Led_Status[0] & HID_LED_ALL) != (LED_SATUS & HID_LED_ALL))
+        {
+            if(Led_Status[0] & HID_LED_NumLock)
+                printf("NmLK  ON, ");
+            else
+                printf("NmLK OFF, ");
 
+            if(Led_Status[0] & HID_LED_CapsLock)
+                printf("CapsLock  ON, ");
+            else
+                printf("CapsLock OFF, ");
+
+            if(Led_Status[0] & HID_LED_ScrollLock)
+                printf("ScrollLock  ON, ");
+            else
+                printf("ScrollLock OFF, ");
+
+            if(Led_Status[0] & HID_LED_Compose)
+                printf("Compose  ON, ");
+            else
+                printf("Compose OFF, ");
+
+            if(Led_Status[0] & HID_LED_Kana)
+                printf("Kana  ON\n");
+            else
+                printf("Kana OFF\n");
+        }
+        LED_SATUS = Led_Status[0];
+    }
+}

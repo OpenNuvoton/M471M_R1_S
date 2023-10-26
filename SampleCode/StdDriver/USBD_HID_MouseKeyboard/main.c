@@ -5,6 +5,7 @@
  *           The mouse cursor will move automatically when this mouse device connecting to PC.
  *           This sample code uses a GPIO to simulate key input.
  *
+ * SPDX-License-Identifier: Apache-2.0
  * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>

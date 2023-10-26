@@ -2,6 +2,7 @@
  * @file     hid_kb.c
  * @brief    USBD HID keyboard sample file
  *
+ * SPDX-License-Identifier: Apache-2.0
  * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
@@ -11,7 +12,7 @@
 #include "usbd.h"
 #include "hid_kb.h"
 
-
+uint8_t Led_Status[8];
 
 void USBD_IRQHandler(void)
 {
@@ -221,7 +222,8 @@ void HID_ClassRequest(void)
             {
                 /* Request Type = Output */
                 USBD_SET_DATA1(EP1);
-                USBD_SET_PAYLOAD_LEN(EP1, buf[6]);
+
+                USBD_PrepareCtrlOut(Led_Status, buf[6]);
 
                 /* Status stage */
                 USBD_PrepareCtrlIn(0, 0);
