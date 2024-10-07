@@ -59,6 +59,11 @@
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/retarget_tiny.c</locationURI>
 		</link>
+		<link>
+			<name>User/startup_M471M_R1_S_tiny.S</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/startup_M471M_R1_S_tiny.S</locationURI>
+		</link>
 	</linkedResources>
 	<filteredResources>
 		<filter>
@@ -86,6 +91,33 @@
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-sys.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1728030876376</id>
+			<name>CMSIS/CMSIS/GCC</name>
+			<type>5</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-_syscalls.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1728030876398</id>
+			<name>CMSIS/CMSIS/GCC</name>
+			<type>5</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-semihosting.h</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1728030876406</id>
+			<name>CMSIS/CMSIS/GCC</name>
+			<type>5</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-gcc_arm.ld</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

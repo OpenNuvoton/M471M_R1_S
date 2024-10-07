@@ -12,7 +12,7 @@
 #define PLL_CLOCK           72000000
 
 
-#if !defined(__ICCARM__) && !defined(__GNUC__)
+#if defined(__ARMCC_VERSION)
 extern uint32_t Image$$RO$$Base;
 #endif
 
@@ -139,7 +139,7 @@ int main()
     printf("Boot from 0x100000\n");
 #endif
 
-#if defined(__ICCARM__) || defined(__GNUC__)
+#if !defined(__ARMCC_VERSION)
     printf("VECMAP = 0x%x\n", FMC_GetVECMAP());
 #else
     printf("Current RO Base = 0x%x, VECMAP = 0x%x\n", (uint32_t)&Image$$RO$$Base, FMC_GetVECMAP());
@@ -150,7 +150,7 @@ int main()
     printf("[1] Boot 1, base = 0x4000\n");
     printf("[2] Boot 2, base = 0x6000\n");
     printf("[3] Boot 3, base = 0x8000\n");
-#if !defined(__GNUC__)
+#if defined(__ICCARM__) || defined(__ARMCC_VERSION)
     printf("[4] Boot 4, base = 0x100000\n");
 #endif
     printf("[Others] Boot, base = 0x0\n");
@@ -175,7 +175,7 @@ int main()
         FMC_SetVectorPageAddr(0x8000);
         break;
 
-#if !defined(__GNUC__)
+#if defined(__ICCARM__) || defined(__ARMCC_VERSION)
     case '4':
         FMC_SetVectorPageAddr(0x100000);
         break;

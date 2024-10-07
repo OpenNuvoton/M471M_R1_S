@@ -274,8 +274,8 @@ int32_t main(void)
     UART_WAIT_TX_EMPTY(UART0);
 
     /* Select HCLK clock source as HIRC and and HCLK source divider as 1 */
-    CLK->CLKSEL0 = CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk) | CLK_CLKSEL0_HCLKSEL_HIRC;
-    CLK->CLKDIV0 = CLK->CLKDIV0 & (~CLK_CLKDIV0_HCLKDIV_Msk) | CLK_CLKDIV0_HCLK(1);
+    CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HIRC;
+    CLK->CLKDIV0 = (CLK->CLKDIV0 & (~CLK_CLKDIV0_HCLKDIV_Msk)) | CLK_CLKDIV0_HCLK(1);
 
     /* Set PLL to Power down mode and HW will also clear PLLSTB bit in CLKSTATUS register */
     CLK_DisablePLL();

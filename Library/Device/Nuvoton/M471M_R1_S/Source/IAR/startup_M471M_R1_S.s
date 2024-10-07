@@ -3,7 +3,7 @@
 ; * @brief    CMSIS Cortex-M4 Core Device Startup File for NUC452E
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
-; * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
+; * @copyright (C) 2024 Nuvoton Technology Corp. All rights reserved.
 ; *****************************************************************************/
 
         MODULE  ?cstartup
@@ -14,6 +14,7 @@
         SECTION .intvec:CODE:NOROOT(2)
 
         EXTERN  __iar_program_start
+        EXTERN  ProcessHardFault
         EXTERN  SystemInit
         PUBLIC  __vector_table
         PUBLIC  __vector_table_0x1c
@@ -153,40 +154,18 @@ NMI_Handler
         B NMI_Handler
 
         PUBWEAK HardFault_Handler
+HardFault_Handler\
 
-#ifdef DEBUG_ENABLE_SEMIHOST
-        SECTION .text:CODE:REORDER:NOROOT(2)
-HardFault_Handler
+        MOV     R0, LR
+        MRS     R1, MSP
+        MRS     R2, PSP
+        LDR     R3, =ProcessHardFault
+        BLX     R3
+        BX      R0
 
-
-                MOV     R0, LR
-                LSLS    R0,R0, #29            ; Check bit 2
-                BMI     SP_is_PSP             ; previous stack is PSP
-                MRS     R0, MSP               ; previous stack is MSP, read MSP
-                B       SP_Read_Ready
-SP_is_PSP
-                MRS     R0, PSP               ; Read PSP
-SP_Read_Ready
-                LDR     R1, [R13, #24]        ; Get previous PC
-                LDRH    R3, [R1]              ; Get instruction
-                LDR     R2, =0xBEAB           ; The sepcial BKPT instruction
-                CMP     R3, R2                ; Test if the instruction at previous PC is BKPT
-                BNE     HardFault_Handler_Ret ; Not BKPT
-
-                ADDS    R1, #4                ; Skip BKPT and next line
-                STR     R1, [R13, #24]        ; Save previous PC
-
-                BX     LR
-HardFault_Handler_Ret
-
-#else
-
-        SECTION .text:CODE:REORDER:NOROOT(2)
-HardFault_Handler
-
-#endif
-
-        B HardFault_Handler
+        PUBWEAK ProcessHardFaultx
+ProcessHardFaultx\
+        B       .
 
         PUBWEAK MemManage_Handler
         SECTION .text:CODE:REORDER:NOROOT(2)
@@ -324,6 +303,37 @@ USBH_IRQHandler
 SC0_IRQHandler
 Default_Handler
         B   .
+
+
+;void SH_ICE(void)
+    PUBLIC    SH_ICE
+SH_ICE
+    CMP   R2,#0
+    BEQ   SH_End
+    STR   R0,[R2]   ; Save the return value to *pn32Out_R0
+
+;void SH_End(void)
+    PUBLIC    SH_End
+SH_End
+    MOVS   R0,#1    ; Set return value to 1
+    BX     lr       ; Return
+
+
+;int32_t SH_DoCommand(int32_t n32In_R0, int32_t n32In_R1, int32_t *pn32Out_R0)
+    PUBLIC    SH_DoCommand
+SH_DoCommand
+    BKPT   0xAB             ; This instruction will cause ICE trap or system HardFault
+    B      SH_ICE
+SH_HardFault                ; Captured by HardFault
+    MOVS   R0,#0            ; Set return value to 0
+    BX     lr               ; Return
+
+
+    PUBLIC    __PC
+__PC
+    MOV     r0, lr
+    BLX     lr
+
 
     END
 

@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file     main.c
  * @brief    Show how to debug with semi-host message print.
- * 
+ *
  *
  * @copyright (C) 2020 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
@@ -10,6 +10,8 @@
 
 #if defined (__GNUC__) && !defined(__ARMCC_VERSION) && defined(OS_USE_SEMIHOSTING)
 extern void initialise_monitor_handles(void);
+
+void ProcessHardFault() {}
 #endif
 
 /*---------------------------------------------------------------------------------------------------------*/

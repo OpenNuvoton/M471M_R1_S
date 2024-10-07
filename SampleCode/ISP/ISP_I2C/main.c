@@ -47,7 +47,7 @@ void SYS_Init(void)
     /* Enable I2C1 clock */
     CLK->APBCLK0 |= CLK_APBCLK0_I2C1CKEN_Msk;
     /* Set I2C1 multi-function pins */
-    SYS->GPE_MFPH = (SYS->GPE_MFPH & ~(SYS_GPE_MFPH_PE8MFP_Msk | SYS_GPE_MFPH_PE9MFP_Msk)) | 
+    SYS->GPE_MFPH = (SYS->GPE_MFPH & ~(SYS_GPE_MFPH_PE8MFP_Msk | SYS_GPE_MFPH_PE9MFP_Msk)) |
                     (SYS_GPE_MFPH_PE8MFP_I2C1_SCL | SYS_GPE_MFPH_PE9MFP_I2C1_SDA);
     /* I2C clock pin enable schmitt trigger */
     PE->SMTEN |= GPIO_SMTEN_SMTEN8_Msk | GPIO_SMTEN_SMTEN9_Msk;
@@ -102,3 +102,12 @@ _APROM:
     /* Trap the CPU */
     while (1);
 }
+
+/*---------------------------------------------------------------------------------------------------------*/
+/*  Empty functions for reduce code size to fit into LDROM & solve the functions are not be defined.       */
+/*---------------------------------------------------------------------------------------------------------*/
+void ProcessHardFault()
+{}
+
+void SH_Return()
+{}

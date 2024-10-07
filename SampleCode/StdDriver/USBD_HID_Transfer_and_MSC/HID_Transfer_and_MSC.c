@@ -280,7 +280,7 @@ void HID_MSC_Init(void)
 {
     int32_t i;
     uint8_t *pu8;
-    uint8_t *pSerial = __TIME__;
+    uint8_t *pSerial = (uint8_t *)__TIME__;
 
     /* Init setup packet buffer */
     /* Buffer range for SETUP packet -> [0 ~ 0x7] */

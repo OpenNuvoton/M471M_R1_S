@@ -313,7 +313,7 @@ int32_t main(void)
     while((g_u8SlvPWRDNWK & g_u8SlvI2CWK) == 0);
 
     /* Wake-up Interrupt Message */
-    printf("Power-down Wake-up INT 0x%x\n", ((CLK->PWRCTL) & CLK_PWRCTL_PDWKIF_Msk));
+		printf("Power-down Wake-up INT 0x%x\n", (uint32_t)(((CLK->PWRCTL) & CLK_PWRCTL_PDWKIF_Msk)));
     printf("I2C0 WAKE INT 0x%x\n", I2C0->WKSTS);
 
     /* Disable power wake-up interrupt */

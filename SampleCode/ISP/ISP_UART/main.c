@@ -16,7 +16,7 @@
 /*---------------------------------------------------------------------------------------------------------*/
 uint8_t volatile bufhead = 0;
 uint8_t volatile bUartDataReady = 0;
-__align(4) uint8_t  uart_rcvbuf[64];
+uint8_t  uart_rcvbuf[64] __attribute__ ((aligned(4)));
 
 void SYS_Init(void)
 {
@@ -81,7 +81,7 @@ void UART0_Init()
     NVIC_EnableIRQ(UART0_IRQn);
 }
 
-extern __align(4) uint8_t response_buff[64];
+extern uint8_t response_buff[64] __attribute__ ((aligned(4)));
 void PutString(void)
 {
     uint32_t i;
@@ -180,3 +180,12 @@ _APROM:
     /* Trap the CPU */
     while (1);
 }
+
+/*---------------------------------------------------------------------------------------------------------*/
+/*  Empty functions for reduce code size to fit into LDROM & solve the functions are not be defined.       */
+/*---------------------------------------------------------------------------------------------------------*/
+void ProcessHardFault()
+{}
+
+void SH_Return()
+{}
