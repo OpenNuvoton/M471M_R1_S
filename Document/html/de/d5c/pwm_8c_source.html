@@ -19,7 +19,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="../../m4.jpg"/></td>
   <td id="projectalign">
-   <div id="projectname">M471M/R1/S BSP<span id="projectnumber">&#160;V3.01.001</span>
+   <div id="projectname">M471M/R1/S BSP<span id="projectnumber">&#160;V3.02.000</span>
    </div>
    <div id="projectbrief">The Board Support Package for M471M/R1/S</div>
   </td>
@@ -539,7 +539,7 @@ $(function() {
 <div class="line"><a id="l01135" name="l01135"></a><span class="lineno"> 1135</span> </div>
 <div class="line"><a id="l01152" name="l01152"></a><span class="lineno"><a class="line" href="../../d6/d72/group___p_w_m___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#ga7228703352398a592bb40ba2594a208f"> 1152</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../d6/d72/group___p_w_m___e_x_p_o_r_t_e_d___f_u_n_c_t_i_o_n_s.html#ga7228703352398a592bb40ba2594a208f">PWM_SetClockSource</a>(<a class="code hl_struct" href="../../dd/d2d/struct_p_w_m___t.html">PWM_T</a> *pwm, uint32_t u32ChannelNum, uint32_t u32ClkSrcSel)</div>
 <div class="line"><a id="l01153" name="l01153"></a><span class="lineno"> 1153</span>{</div>
-<div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span>    (pwm)-&gt;CLKSRC = (pwm)-&gt;CLKSRC &amp; ~(<a class="code hl_define" href="../../d4/d15/_m471_m___r1___s_8h.html#a1cf54059a02cd9292339d02ac43831ec">PWM_CLKSRC_ECLKSRC0_Msk</a> &lt;&lt; ((u32ChannelNum &gt;&gt; 1) * <a class="code hl_define" href="../../d4/d15/_m471_m___r1___s_8h.html#a9a6c27fc12835421f78643ab27379d8e">PWM_CLKSRC_ECLKSRC2_Pos</a>)) | \</div>
+<div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span>    (pwm)-&gt;CLKSRC = ((pwm)-&gt;CLKSRC &amp; ~(<a class="code hl_define" href="../../d4/d15/_m471_m___r1___s_8h.html#a1cf54059a02cd9292339d02ac43831ec">PWM_CLKSRC_ECLKSRC0_Msk</a> &lt;&lt; ((u32ChannelNum &gt;&gt; 1)) * <a class="code hl_define" href="../../d4/d15/_m471_m___r1___s_8h.html#a9a6c27fc12835421f78643ab27379d8e">PWM_CLKSRC_ECLKSRC2_Pos</a>)) | \</div>
 <div class="line"><a id="l01155" name="l01155"></a><span class="lineno"> 1155</span>                    (u32ClkSrcSel &lt;&lt; ((u32ChannelNum &gt;&gt; 1) * <a class="code hl_define" href="../../d4/d15/_m471_m___r1___s_8h.html#a9a6c27fc12835421f78643ab27379d8e">PWM_CLKSRC_ECLKSRC2_Pos</a>));</div>
 <div class="line"><a id="l01156" name="l01156"></a><span class="lineno"> 1156</span>}</div>
 <div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span> </div>
@@ -738,7 +738,7 @@ $(function() {
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 19 2024 15:39:33 for M471M/R1/S BSP by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.3
+Generated on Thu Oct 17 2024 10:27:38 for M471M/R1/S BSP by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.3
 </small></address>
 </body>
 </html>
